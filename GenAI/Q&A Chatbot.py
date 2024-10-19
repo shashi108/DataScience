@@ -1,4 +1,7 @@
-
+#pip install streamlit
+#pip install langchain_core
+#pip install langchain_community
+#pip install python-dotenv
 #%%%%%%%%% LangSmith >> Prompt >> LLM>>
 #Ollama: Helpful to intract with LLM model
 #ChatPromptTemplate:It allows developers to define templates that can dynamically incorporate user inputs and generate structured responses
