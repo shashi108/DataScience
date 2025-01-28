@@ -1,4 +1,4 @@
-# Chat with PDF
+# Chat with Deepseek
 A simple RAG (Retrieval-Augmented Generation) system using Deepseek, LangChain, and Streamlit to chat and answer complex questions about your local documents.
 
 
