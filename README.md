@@ -220,11 +220,11 @@ Happy Coding 🚀
 
 <p align="center">
 
-<a href="https://github.com/kodigitaccount">
+<a href="https://github.com/shashi108/">
 <img src="https://img.shields.io/badge/GitHub-shashi108?style=for-the-badge&logo=github"/>
 </a>
 
-<a href="https://www.linkedin.com/in/your-linkedin-profile/">
+<a href="https://www.linkedin.com/in/shashi-kumar-078877a7/">
 <img src="https://img.shields.io/badge/LinkedIn-Shashi Kumar-0077B5?style=for-the-badge&logo=linkedin"/>
 </a>
 
