@@ -202,20 +202,6 @@ Production Ready Chatbot using
 
 https://github.com/shashi108
 
-📧 Email
-
-your-email@gmail.com
-
-💬 Always open for
-
-- AI Consulting
-- Corporate Training
-- Workshops
-- Open Source Collaboration
-- Speaking Opportunities
-
----
-
 # ⭐ Quote
 
 > "The future belongs to those who build AI, not just use AI."
