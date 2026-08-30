@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Guardrails | Shashi Kumar</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+<div class="page">
+
+    <header class="header">
+        <div class="badge">AI SECURITY GUARD</div>
+
+        <h1>🛡️ LLM Guardrails</h1>
+
+        <p class="author-line">By Shashi Kumar</p>
+
+        <p class="subtitle">
+            Responsible AI • Enterprise AI • AI Security
+        </p>
+    </header>
+
+    <main class="card">
+
+        <section class="prompt-section">
+            <h2>Test Your LLM</h2>
+
+            <p class="description">
+                Enter a prompt and observe how the guardrail pipeline processes it.
+            </p>
+
+            <textarea
+                id="prompt"
+                maxlength="5000"
+                placeholder="Enter your prompt here..."
+            ></textarea>
+
+            <div class="character-count">
+                <span id="characterCount">0</span>
+                / 5000 characters
+            </div>
+
+            <button
+                id="sendButton"
+                onclick="sendPrompt()"
+            >
+                🚀 Send Prompt
+            </button>
+        </section>
+
+        <section class="pipeline">
+            <h3>Security Pipeline</h3>
+
+            <p class="pipeline-description">
+                Every prompt passes through multiple security layers before reaching the user.
+            </p>
+
+            <div class="pipeline-row">
+
+                <div id="stepUser" class="pipeline-step">
+                    <span class="step-icon">👤</span>
+                    <strong>User</strong>
+                    <small>Prompt</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div id="stepInput" class="pipeline-step">
+                    <span class="step-icon">🛡️</span>
+                    <strong>Input Guardrail</strong>
+                    <small>Security Check</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div id="stepGemini" class="pipeline-step">
+                    <span class="step-icon">🤖</span>
+                    <strong>Gemini</strong>
+                    <small>Generate</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div id="stepOutput" class="pipeline-step">
+                    <span class="step-icon">🛡️</span>
+                    <strong>Output Guardrail</strong>
+                    <small>Security Check</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div id="stepResponse" class="pipeline-step">
+                    <span class="step-icon">✅</span>
+                    <strong>Response</strong>
+                    <small>User</small>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="statusBox" class="status hidden"></section>
+
+        <section id="securityBox" class="security-box hidden">
+            <h3>🛡️ Security Result</h3>
+
+            <div class="security-grid">
+
+                <div class="security-item">
+                    <span>Stage</span>
+                    <strong id="stageValue">-</strong>
+                </div>
+
+                <div class="security-item">
+                    <span>Category</span>
+                    <strong id="categoryValue">-</strong>
+                </div>
+
+                <div class="security-item">
+                    <span>Message</span>
+                    <strong id="messageValue">-</strong>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="responseBox" class="response hidden">
+
+            <div class="response-header">
+                <div>
+                    <span class="response-icon">🤖</span>
+                    <h3>Gemini Response</h3>
+                </div>
+
+                <span class="safe-badge">
+                    ✓ Guardrail Passed
+                </span>
+            </div>
+
+            <div id="responseText" class="response-text"></div>
+        </section>
+
+        <section class="workshop-info">
+
+            <h3>What This Demo Demonstrates</h3>
+
+            <div class="info-grid">
+
+                <div class="info-card">
+                    <div class="info-icon">🛡️</div>
+                    <h4>Input Guardrails</h4>
+                    <p>
+                        Detect blocked keywords, prompt injection and jailbreak attempts.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🤖</div>
+                    <h4>Generative AI</h4>
+                    <p>
+                        Process safe prompts using Google's Gemini model.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🔐</div>
+                    <h4>Output Guardrails</h4>
+                    <p>
+                        Validate model responses before showing them to users.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🏢</div>
+                    <h4>Enterprise AI</h4>
+                    <p>
+                        Demonstrate responsible and secure AI application design.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <strong>LLM Guardrails</strong>
+        <span>•</span>
+        By Prakash Senapat
+        <span>•</span>
+        Responsible AI & Enterprise AI
+    </footer>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
