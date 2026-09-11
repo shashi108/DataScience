@@ -1,6 +1,6 @@
 # LangGraph Basic Tutorials
 
-This directory contains foundational tutorials and examples for learning **LangGraph**, a powerful framework for building applications with Large Language Models (LLMs). LangGraph allows you to create complex, stateful workflows by combining multiple LLM calls with deterministic logic.
+This directory contains foundational tutorials and examples for learning **LangGraph**, a powerful framework for building applications with Large Language Models (LLMs). LangGraph allows you to create structured workflows that combine programmatic logic and (optionally) LLM calls to solve real-world tasks. The notebooks here progress from simple, non-LLM examples to advanced, LLM-powered orchestration patterns.
 
 ---
 
@@ -87,6 +87,32 @@ This directory contains foundational tutorials and examples for learning **LangG
 
 ---
 
+### 7. **Quadratic Equation - Conditional Workflow (Without LLM)**
+- **File:** `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
+- **Description:** Demonstrates conditional workflows using a quadratic equation solver as the domain example. This notebook shows how to:
+   - Compute the discriminant and determine the nature of roots (real & distinct, real & equal, complex)
+   - Use conditional nodes to route execution based on discriminant
+   - Return formatted solutions for different root types
+   - Build workflows that require decision logic but do not call an LLM
+- **Key Concepts:** Conditional routing, numeric processing, branching workflows
+- **Use Case:** Educational example for decision-making in LangGraph workflows without external APIs
+- **Uses LLM:** ❌ No
+
+---
+
+### 8. **LLM-Based Review Handling Conditional Workflow**
+- **File:** `8_LLM Based Review handling conditional workflow.ipynb`
+- **Description:** An example of conditional workflows that incorporate LLMs to handle review and moderation style tasks. This notebook demonstrates:
+   - Using LLMs to generate or evaluate textual reviews
+   - Routing outputs based on LLM-evaluated criteria (e.g., pass/fail, accept/reject, needs revision)
+   - Combining programmatic checks with LLM judgments in conditional branches
+   - Producing final structured recommendations based on combined signals
+- **Key Concepts:** Conditional workflows, LLM evaluation & routing, hybrid programmatic+LLM decision logic
+- **Use Case:** Moderation pipelines, review automation, and adaptive content workflows
+- **Uses LLM:** ✅ Yes
+
+---
+
 ## 🎯 Learning Path
 
 1. **Start Here:** `1_BMI_Calculator.ipynb` - Get comfortable with basic LangGraph concepts
@@ -95,6 +121,8 @@ This directory contains foundational tutorials and examples for learning **LangG
 4. **Advanced:** `4_Prompt Chaining.ipynb` - Master sequential multi-step LLM workflows
 5. **Performance:** `5_Cricket_Parallel_workflow.ipynb` - Learn parallel execution patterns without LLM
 6. **Expert:** `6_Evaluate_Essay_parallelization_workflow.ipynb` - Build complex systems with parallel LLM processing
+7. **Conditional Workflows (Non-LLM):** `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
+8. **Conditional Workflows (LLM):** `8_LLM Based Review handling conditional workflow.ipynb`
 
 ---
 
@@ -102,7 +130,7 @@ This directory contains foundational tutorials and examples for learning **LangG
 
 - Python 3.8+
 - LangGraph library
-- LLM API keys (OpenAI, Anthropic, Ollama, or your preferred provider) - *required for programs 3, 4, and 6*
+- LLM API keys (OpenAI, Anthropic, Ollama, or your preferred provider) - *required for programs 3, 4, 6, and 8*
 - Jupyter Notebook or similar environment
 
 ---
@@ -112,14 +140,14 @@ This directory contains foundational tutorials and examples for learning **LangG
 | Concept | Notebooks | Uses LLM |
 |---------|-----------|----------|
 | Basic Workflows | 1, 5 | ❌ No |
-| Conditional Logic | 2 | ❌ No |
-| LLM Integration | 3, 4, 6 | ✅ Yes |
+| Conditional Logic | 2, 7, 8 | 2,7: ❌ No, 8: ✅ Yes |
+| LLM Integration | 3, 4, 6, 8 | ✅ Yes |
 | Multi-turn Conversations | 3 | ✅ Yes |
 | Prompt Chaining | 4 | ✅ Yes |
 | Sequential Workflows | 2, 4 | 2: ❌ No, 4: ✅ Yes |
 | Parallel Execution | 5, 6 | 5: ❌ No, 6: ✅ Yes |
 | Result Aggregation | 5, 6 | 5: ❌ No, 6: ✅ Yes |
-| Workflow Orchestration | 2, 5, 6 | 2: ❌ No, 5: ❌ No, 6: ✅ Yes |
+| Workflow Orchestration | 2, 5, 6, 8 | 2: ❌ No, 5: ❌ No, 6: ✅ Yes, 8: ✅ Yes |
 
 ---
 
@@ -140,8 +168,8 @@ This directory contains foundational tutorials and examples for learning **LangG
 
 - Each notebook is standalone and can be run independently
 - Comments and markdown cells provide detailed explanations
-- **No LLM Required:** Programs 1, 2, and 5 do NOT require LLM API keys
-- **LLM Required:** Programs 3, 4, and 6 require active LLM API credentials
+- **No LLM Required:** Programs 1, 2, 5, and 7 do NOT require LLM API keys
+- **LLM Required:** Programs 3, 4, 6, and 8 require active LLM API credentials
 - Modify parameters and prompts to experiment and learn
 - Check the `image` folder for any diagrams or references
 
