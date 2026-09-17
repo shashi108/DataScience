@@ -32,8 +32,51 @@ The examples in this folder progressively cover:
 | 12 | `12_Chatbot_Case Study_With_UI.ipynb` | Chatbot UI case study | Yes |
 
 Additional folders:
-- `chatbot_LLM/` - chatbot-related assets and supporting materials
+- `chatbot_LLM/` - local chatbot project built with Streamlit, LangGraph, and Ollama for practical AI chat application development
 - `image/` - images and diagram references for visual understanding
+
+---
+
+## Chatbot LLM Folder
+
+The `chatbot_LLM/` folder contains a small end-to-end chatbot project designed to bring together LangGraph workflow logic with a user-facing web interface.
+
+### Project Highlights
+- Built with Python and Streamlit
+- Uses LangGraph for workflow/state orchestration
+- Connects to a local LLM via Ollama
+- Demonstrates conversational state handling with memory checkpoints
+- Includes multiple app variants for learning and experimentation
+
+### Files in this folder
+- `ai_app.py` — main Streamlit chatbot app with custom UI styling
+- `app_basic.py` — a simpler beginner-friendly chatbot app
+- `app_basic2.py` — another Streamlit-based chatbot version
+- `backend.py` — LangGraph backend, state definition, and model initialization
+- `README.md` — setup and execution instructions for the chatbot project
+
+### Core Concepts Covered
+- Chatbot state design
+- LangGraph message flow
+- Model integration with Ollama
+- Streamlit UI integration
+- Local LLM deployment without cloud API dependency
+
+### Typical Tech Stack
+- Python
+- Streamlit
+- LangGraph
+- LangChain Core
+- LangChain Ollama
+- Ollama local runtime
+
+### Example Run
+```bash
+cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
+streamlit run ai_app.py
+```
+
+This folder is useful for understanding how to turn a LangGraph workflow into an interactive chatbot application using a local model.
 
 ---
 
@@ -118,6 +161,7 @@ A suggested order to work through this folder:
 10. `10_Chatbot_without Persistance.ipynb` — basic chatbot flow
 11. `11_Chatbot_with Persistance.ipynb` — stateful conversations
 12. `12_Chatbot_Case Study_With_UI.ipynb` — practical full application pattern
+13. `chatbot_LLM/` — move to a real interactive local chatbot app built with Streamlit + Ollama
 
 ---
 
@@ -127,12 +171,13 @@ A suggested order to work through this folder:
 - Jupyter Notebook or JupyterLab
 - `langgraph`
 - `langchain` or model-specific integrations
-- LLM provider credentials for notebooks using LLMs
+- Ollama installed and running for the `chatbot_LLM` app
+- LLM provider credentials for notebooks using cloud-based models
 
 Typical installation:
 
 ```bash
-pip install langgraph langchain
+pip install langgraph langchain streamlit langchain-ollama
 ```
 
 For LLM-based notebooks, you may also need provider-specific packages such as:
@@ -149,14 +194,22 @@ or other integrations depending on your chosen model provider.
 
 1. Clone or download this repository.
 2. Open the folder `GenAI/Lang Graph/Lang Graph Basic`.
-3. Launch Jupyter Notebook or JupyterLab.
-4. Open any notebook and run the cells sequentially.
+3. Launch Jupyter Notebook or JupyterLab for the notebook-based exercises.
+4. For the chatbot app, run the Streamlit project in `chatbot_LLM/`.
 5. For LLM-based examples, ensure your environment variables or API keys are configured before execution.
 
 Example environment variable for OpenAI:
 
 ```bash
 export OPENAI_API_KEY="your-api-key"
+```
+
+For the local Ollama chatbot:
+
+```bash
+ollama pull gemma3:4b
+cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
+streamlit run ai_app.py
 ```
 
 ---
@@ -171,6 +224,8 @@ export OPENAI_API_KEY="your-api-key"
 - Iterative refinement
 - Stateful memory / persistence
 - Chatbot application patterns
+- Local LLM integration with Ollama
+- UI-driven conversational agents
 - LLM evaluation and summarization
 
 ---
@@ -179,6 +234,7 @@ export OPENAI_API_KEY="your-api-key"
 
 - Each notebook is designed to be mostly standalone.
 - Some notebooks require LLM API access and may not run without configured credentials.
+- The `chatbot_LLM/` folder is a practical application layer built on top of the notebook examples.
 - Non-LLM notebooks are useful for understanding LangGraph flow design before adding model interactions.
 - Use the `image` directory for visual references and diagrams.
 
