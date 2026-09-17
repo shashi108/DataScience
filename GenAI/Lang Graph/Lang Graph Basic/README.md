@@ -1,184 +1,195 @@
 # LangGraph Basic Tutorials
 
-This directory contains foundational tutorials and examples for learning **LangGraph**, a powerful framework for building applications with Large Language Models (LLMs). LangGraph allows you to create structured workflows that combine programmatic logic and (optionally) LLM calls to solve real-world tasks. The notebooks here progress from simple, non-LLM examples to advanced, LLM-powered orchestration patterns.
+This directory contains a practical set of beginner-to-advanced notebooks for learning and experimenting with LangGraph, a framework for building stateful, graph-based workflows around Large Language Models (LLMs).
+
+The examples in this folder progressively cover:
+- basic workflow construction,
+- conditional logic,
+- parallel execution,
+- prompt chaining,
+- iterative generation,
+- LLM-powered Q&A,
+- chatbot workflows,
+- persistence and UI-based application patterns.
 
 ---
 
-## 📚 Programs Overview
+## Contents Overview
 
-### 1. **BMI Calculator** 
-- **File:** `1_BMI_Calculator.ipynb`
-- **Description:** A beginner-friendly introduction to LangGraph using a simple BMI (Body Mass Index) calculator. This notebook demonstrates how to:
-   - Create basic workflows without LLM calls
-   - Accept user input (height and weight)
-   - Process mathematical calculations 
-   - Display results in a structured format
-- **Key Concepts:** Basic workflow setup, input/output handling, data processing
-- **Use Case:** Perfect for understanding the fundamentals of LangGraph workflows without LLM integration
-- **Uses LLM:** ❌ No
+| No. | Notebook | Focus Area | Uses LLM |
+|-----|----------|------------|----------|
+| 1 | `1_BMI_Calculator.ipynb` | Basic workflow and calculation logic | No |
+| 2 | `2_BMI_Calculator_Category.ipynb` | Conditional classification logic | No |
+| 3 | `3_LLM_QA.ipynb` | Q&A workflow with LLM | Yes |
+| 4 | `4_Prompt Chaining.ipynb` | Sequential prompt chaining | Yes |
+| 5 | `5_Cricket_Parallel_workflow.ipynb` | Parallel task execution | No |
+| 6 | `6_Evaluate_Essay_parallelization_workflow.ipynb` | Parallel LLM evaluation | Yes |
+| 7 | `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb` | Branching logic without LLM | No |
+| 8 | `8_LLM Based Review handling conditional workflow.ipynb` | Conditional LLM routing and review handling | Yes |
+| 9 | `9_Iterative work flow_generate tweet.ipynb` | Iterative generation workflow | Yes |
+| 10 | `10_Chatbot_without Persistance.ipynb` | Stateless chatbot example | Yes |
+| 11 | `11_Chatbot_with Persistance.ipynb` | Stateful chatbot with persistence | Yes |
+| 12 | `12_Chatbot_Case Study_With_UI.ipynb` | Chatbot UI case study | Yes |
 
----
-
-### 2. **BMI Calculator with Category Classification**
-- **File:** `2_BMI_Calculator_Category.ipynb`
-- **Description:** An extension of the BMI calculator that adds intelligent categorization using conditional logic. This notebook shows how to:
-   - Calculate BMI values
-   - Use conditional logic to classify BMI results (Underweight, Normal, Overweight, Obese)
-   - Create multi-step workflows with sequential decision-making
-   - Return categorized results based on calculated values
-- **Key Concepts:** Conditional workflows, sequential node execution, output classification
-- **Use Case:** Learning how to add intelligent decision-making to your LangGraph applications without requiring external API calls
-- **Uses LLM:** ❌ No
+Additional folders:
+- `chatbot_LLM/` - chatbot-related assets and supporting materials
+- `image/` - images and diagram references for visual understanding
 
 ---
 
-### 3. **LLM Question Answering System**
-- **File:** `3_LLM_QA.ipynb`
-- **Description:** A straightforward Q&A system built with LangGraph that demonstrates:
-   - Creating a question-answering pipeline with LLM
-   - Context handling for better responses
-   - Multi-turn conversation capabilities
-   - Answer generation and formatting by LLM
-- **Key Concepts:** Conversation chains, context management, QA workflows, LLM integration
-- **Use Case:** Foundation for building chatbots and information retrieval systems
-- **Uses LLM:** ✅ Yes
+## Notebook Details
+
+### 1. BMI Calculator
+- File: `1_BMI_Calculator.ipynb`
+- Description: A beginner-friendly LangGraph example that calculates BMI from user inputs and returns structured output.
+- Concepts: basic graph nodes, input handling, workflow execution.
+- Use case: building your first workflow without an LLM.
+
+### 2. BMI Calculator with Category Classification
+- File: `2_BMI_Calculator_Category.ipynb`
+- Description: Extends the BMI calculator with conditional logic to classify results into categories such as underweight, normal, overweight, and obese.
+- Concepts: branching, decision-based execution, workflow routing.
+
+### 3. LLM Question Answering System
+- File: `3_LLM_QA.ipynb`
+- Description: Introduces LLM-based question-answering with a conversational workflow.
+- Concepts: LLM integration, context handling, answer generation.
+
+### 4. Prompt Chaining
+- File: `4_Prompt Chaining.ipynb`
+- Description: Demonstrates multistage prompt chaining where one LLM call feeds into the next.
+- Concepts: sequential processing, prompt engineering, multi-step orchestration.
+
+### 5. Cricket Statistics Parallel Workflow
+- File: `5_Cricket_Parallel_workflow.ipynb`
+- Description: Shows how multiple independent calculations can run in parallel.
+- Concepts: parallel execution, aggregation, performance optimization.
+
+### 6. Essay Evaluation with Parallelization
+- File: `6_Evaluate_Essay_parallelization_workflow.ipynb`
+- Description: Evaluates an essay using multiple parallel criteria and combines the results into a final assessment.
+- Concepts: parallel LLM judges, aggregation, scoring systems.
+
+### 7. Quadratic Equation Conditional Workflow (Without LLM)
+- File: `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
+- Description: Builds a conditional workflow for solving quadratic equations based on the discriminant.
+- Concepts: branching logic, mathematical computation, decision routing.
+
+### 8. LLM-Based Review Handling Conditional Workflow
+- File: `8_LLM Based Review handling conditional workflow.ipynb`
+- Description: Uses LLM-based decision logic to handle reviews or moderation-style tasks based on conditional routing.
+- Concepts: conditional branching, hybrid logic, review automation.
+
+### 9. Iterative Workflow for Tweet Generation
+- File: `9_Iterative work flow_generate tweet.ipynb`
+- Description: Demonstrates iterative refinement in a workflow that generates and improves tweet content.
+- Concepts: iteration, feedback loops, generation quality improvement.
+
+### 10. Chatbot without Persistence
+- File: `10_Chatbot_without Persistance.ipynb`
+- Description: A simple chatbot example without remembering past conversation state.
+- Concepts: stateless conversation handling, LLM interaction.
+
+### 11. Chatbot with Persistence
+- File: `11_Chatbot_with Persistance.ipynb`
+- Description: Builds on the chatbot idea by adding persistence so the application retains memory across interactions.
+- Concepts: conversation memory, storage, stateful chat apps.
+
+### 12. Chatbot Case Study with UI
+- File: `12_Chatbot_Case Study_With_UI.ipynb`
+- Description: A practical chatbot case study with a user interface and more realistic application flow.
+- Concepts: app integration, UI, real-world chatbot patterns.
 
 ---
 
-### 4. **Prompt Chaining**
-- **File:** `4_Prompt Chaining.ipynb`
-- **Description:** An exploration of advanced prompt chaining techniques where multiple LLM calls are connected sequentially. This notebook covers:
-   - Breaking down complex problems into multiple steps (e.g., outline generation → blog content generation)
-   - Passing outputs from one LLM call as inputs to the next
-   - Building multi-stage reasoning workflows
-   - Handling dependencies between LLM calls
-   - Generating comprehensive blog posts from titles using structured workflows
-- **Key Concepts:** Sequential processing, prompt engineering, multi-stage workflows, LLM orchestration
-- **Use Case:** Complex tasks like content generation, data transformation, and multi-step reasoning
-- **Uses LLM:** ✅ Yes
+## Learning Path
+
+A suggested order to work through this folder:
+
+1. `1_BMI_Calculator.ipynb` — start with basic graphs and node logic
+2. `2_BMI_Calculator_Category.ipynb` — learn conditional routing
+3. `3_LLM_QA.ipynb` — connect LangGraph with LLMs
+4. `4_Prompt Chaining.ipynb` — explore multi-step LLM tasks
+5. `5_Cricket_Parallel_workflow.ipynb` — understand parallel execution
+6. `6_Evaluate_Essay_parallelization_workflow.ipynb` — advanced parallel LLM orchestration
+7. `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb` — branching logic without external models
+8. `8_LLM Based Review handling conditional workflow.ipynb` — conditional LLM routing
+9. `9_Iterative work flow_generate tweet.ipynb` — iterative generation workflows
+10. `10_Chatbot_without Persistance.ipynb` — basic chatbot flow
+11. `11_Chatbot_with Persistance.ipynb` — stateful conversations
+12. `12_Chatbot_Case Study_With_UI.ipynb` — practical full application pattern
 
 ---
 
-### 5. **Cricket Statistics - Parallel Workflow**
-- **File:** `5_Cricket_Parallel_workflow.ipynb`
-- **Description:** Demonstrates parallel processing in LangGraph using cricket statistics as a domain example. This notebook illustrates:
-   - Running multiple independent calculations simultaneously (Strike Rate, Balls per Boundary, Boundary Percentage)
-   - Aggregating results from parallel operations
-   - Performance optimization through parallelization
-   - Handling multiple independent sub-tasks without LLM calls
-- **Key Concepts:** Parallel execution, result aggregation, workflow optimization, independent task processing
-- **Use Case:** Processing multiple independent calculations concurrently for improved performance
-- **Uses LLM:** ❌ No
-
----
-
-### 6. **Essay Evaluation with Parallelization**
-- **File:** `6_Evaluate_Essay_parallelization_workflow.ipynb`
-- **Description:** An advanced example using LangGraph to evaluate essays through multiple parallel evaluation criteria with LLM. This notebook demonstrates:
-   - Creating parallel evaluation nodes (Clarity of Thought, Depth of Analysis, Language Quality)
-   - Running multiple LLM evaluators simultaneously for different criteria
-   - Combining parallel results into comprehensive feedback
-   - Scoring and aggregating LLM-based evaluations
-   - Calculating final scores based on multiple evaluation dimensions
-   - Providing detailed, multi-faceted LLM-generated feedback
-- **Key Concepts:** Advanced parallelization, multi-criterion LLM evaluation, result synthesis, reducer functions, workflow orchestration
-- **Use Case:** Building sophisticated evaluation systems, AI-powered feedback systems, and quality assessment tools
-- **Uses LLM:** ✅ Yes
-
----
-
-### 7. **Quadratic Equation - Conditional Workflow (Without LLM)**
-- **File:** `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
-- **Description:** Demonstrates conditional workflows using a quadratic equation solver as the domain example. This notebook shows how to:
-   - Compute the discriminant and determine the nature of roots (real & distinct, real & equal, complex)
-   - Use conditional nodes to route execution based on discriminant
-   - Return formatted solutions for different root types
-   - Build workflows that require decision logic but do not call an LLM
-- **Key Concepts:** Conditional routing, numeric processing, branching workflows
-- **Use Case:** Educational example for decision-making in LangGraph workflows without external APIs
-- **Uses LLM:** ❌ No
-
----
-
-### 8. **LLM-Based Review Handling Conditional Workflow**
-- **File:** `8_LLM Based Review handling conditional workflow.ipynb`
-- **Description:** An example of conditional workflows that incorporate LLMs to handle review and moderation style tasks. This notebook demonstrates:
-   - Using LLMs to generate or evaluate textual reviews
-   - Routing outputs based on LLM-evaluated criteria (e.g., pass/fail, accept/reject, needs revision)
-   - Combining programmatic checks with LLM judgments in conditional branches
-   - Producing final structured recommendations based on combined signals
-- **Key Concepts:** Conditional workflows, LLM evaluation & routing, hybrid programmatic+LLM decision logic
-- **Use Case:** Moderation pipelines, review automation, and adaptive content workflows
-- **Uses LLM:** ✅ Yes
-
----
-
-## 🎯 Learning Path
-
-1. **Start Here:** `1_BMI_Calculator.ipynb` - Get comfortable with basic LangGraph concepts
-2. **Next:** `2_BMI_Calculator_Category.ipynb` - Add conditional logic and multi-step workflows
-3. **Then:** `3_LLM_QA.ipynb` - Build conversational systems with LLM
-4. **Advanced:** `4_Prompt Chaining.ipynb` - Master sequential multi-step LLM workflows
-5. **Performance:** `5_Cricket_Parallel_workflow.ipynb` - Learn parallel execution patterns without LLM
-6. **Expert:** `6_Evaluate_Essay_parallelization_workflow.ipynb` - Build complex systems with parallel LLM processing
-7. **Conditional Workflows (Non-LLM):** `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
-8. **Conditional Workflows (LLM):** `8_LLM Based Review handling conditional workflow.ipynb`
-
----
-
-## 🛠️ Prerequisites
+## Prerequisites
 
 - Python 3.8+
-- LangGraph library
-- LLM API keys (OpenAI, Anthropic, Ollama, or your preferred provider) - *required for programs 3, 4, 6, and 8*
-- Jupyter Notebook or similar environment
+- Jupyter Notebook or JupyterLab
+- `langgraph`
+- `langchain` or model-specific integrations
+- LLM provider credentials for notebooks using LLMs
+
+Typical installation:
+
+```bash
+pip install langgraph langchain
+```
+
+For LLM-based notebooks, you may also need provider-specific packages such as:
+
+```bash
+pip install langchain_openai
+```
+
+or other integrations depending on your chosen model provider.
 
 ---
 
-## 📖 Key Concepts Covered
+## Quick Start
 
-| Concept | Notebooks | Uses LLM |
-|---------|-----------|----------|
-| Basic Workflows | 1, 5 | ❌ No |
-| Conditional Logic | 2, 7, 8 | 2,7: ❌ No, 8: ✅ Yes |
-| LLM Integration | 3, 4, 6, 8 | ✅ Yes |
-| Multi-turn Conversations | 3 | ✅ Yes |
-| Prompt Chaining | 4 | ✅ Yes |
-| Sequential Workflows | 2, 4 | 2: ❌ No, 4: ✅ Yes |
-| Parallel Execution | 5, 6 | 5: ❌ No, 6: ✅ Yes |
-| Result Aggregation | 5, 6 | 5: ❌ No, 6: ✅ Yes |
-| Workflow Orchestration | 2, 5, 6, 8 | 2: ❌ No, 5: ❌ No, 6: ✅ Yes, 8: ✅ Yes |
+1. Clone or download this repository.
+2. Open the folder `GenAI/Lang Graph/Lang Graph Basic`.
+3. Launch Jupyter Notebook or JupyterLab.
+4. Open any notebook and run the cells sequentially.
+5. For LLM-based examples, ensure your environment variables or API keys are configured before execution.
 
----
+Example environment variable for OpenAI:
 
-## 🚀 Quick Start
-
-1. Clone or download this repository
-2. Install required dependencies: `pip install langgraph langchain`
-3. For LLM-based notebooks, set up your API keys:
-   - **OpenAI:** `export OPENAI_API_KEY="your-key"`
-   - **Ollama (Local):** `pip install langchain_ollama`
-   - **Google Generative AI:** `pip install langchain_google_genai`
-4. Open any notebook in Jupyter and run the cells sequentially
-5. Follow the comments and explanations in each notebook
+```bash
+export OPENAI_API_KEY="your-api-key"
+```
 
 ---
 
-## 📝 Notes
+## Key Concepts Covered
 
-- Each notebook is standalone and can be run independently
-- Comments and markdown cells provide detailed explanations
-- **No LLM Required:** Programs 1, 2, 5, and 7 do NOT require LLM API keys
-- **LLM Required:** Programs 3, 4, 6, and 8 require active LLM API credentials
-- Modify parameters and prompts to experiment and learn
-- Check the `image` folder for any diagrams or references
-
----
-
-## 🤝 Contributing
-
-Feel free to extend these examples with additional use cases, optimizations, or variations!
+- Basic workflow creation
+- Conditional routing
+- Multi-step orchestration
+- Prompt chaining
+- Parallel execution
+- Iterative refinement
+- Stateful memory / persistence
+- Chatbot application patterns
+- LLM evaluation and summarization
 
 ---
 
-**Created:** 2026 | **Language:** Python | **Framework:** LangGraph
+## Notes
+
+- Each notebook is designed to be mostly standalone.
+- Some notebooks require LLM API access and may not run without configured credentials.
+- Non-LLM notebooks are useful for understanding LangGraph flow design before adding model interactions.
+- Use the `image` directory for visual references and diagrams.
+
+---
+
+## Contributing
+
+Feel free to extend this collection with more examples, improvements, or advanced LangGraph use cases.
+
+---
+
+Created: 2026
+Framework: LangGraph
+Language: Python
