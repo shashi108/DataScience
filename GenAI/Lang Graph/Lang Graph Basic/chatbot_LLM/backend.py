@@ -10,7 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langchain_ollama import ChatOllama
 model = ChatOllama(model="gemma3:4b")
 response = model.invoke("the capital of India? in one word")
-print(response.content)
+#print(response.content)
 
 #Define State
 class ChatState(TypedDict):
