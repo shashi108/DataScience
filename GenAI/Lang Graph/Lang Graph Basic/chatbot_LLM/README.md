@@ -1,23 +1,16 @@
 # AI Chatbot with LangGraph and Ollama
 
-This project is a simple conversational chatbot built with Python, Streamlit, LangGraph, and a local Ollama LLM. It demonstrates how to create a stateful chatbot graph that accepts user messages, sends them to an LLM, and returns a response while preserving chat state in memory.
+This project demonstrates how to build a simple chatbot using Python, Streamlit, LangGraph, and a local Ollama model. It includes multiple UI variations that show different ways of integrating a LangGraph backend with a chat interface.
 
 ## Project purpose
 
-The application is designed to:
+The project is designed to teach and demonstrate:
 
-- accept user input from a Streamlit web interface
-- pass the conversation into a LangGraph workflow
-- call a local LLM hosted with Ollama
-- maintain conversation state using LangGraph memory checkpointing
-- show the response back in a chat UI
-
-This is a beginner-friendly example for learning:
-
-- LangGraph fundamentals
-- stateful agent/chat workflows
-- local LLM integration using Ollama
-- Streamlit chatbot UI development
+- how to build a chatbot backend with LangGraph
+- how to connect a model using LangChain and Ollama
+- how to manage chat state with memory checkpoints
+- how to build different Streamlit chat interfaces
+- how to stream responses and manage conversation threads
 
 ## Tech stack
 
@@ -26,118 +19,116 @@ This is a beginner-friendly example for learning:
 - LangGraph
 - LangChain Core
 - LangChain Ollama
-- Ollama local model runtime
+- Ollama local runtime
 
 ## Project structure
 
 ```text
 chatbot_LLM/
-├── ai_app.py          # Streamlit chat interface with custom styling
-├── app_basic.py       # Basic chatbot example
-├── app_basic2.py      # Alternate Streamlit chatbot app
-├── backend.py         # LangGraph chatbot backend and model setup
-├── README.md          # Project documentation
+├── backend.py        # LangGraph chatbot graph and model setup
+├── ai_app.py         # Styled Streamlit chat app
+├── 1app_basic.py     # Basic Streamlit chat app
+├── 2app_basic.py     # Chat app with custom CSS styling
+├── 3app_stream.py    # Streaming response example
+├── 4app_resume.py    # Chat history + thread management example
+├── README.md         # Project documentation
 ```
 
-## How it works
-
-### 1. Backend graph
-In `backend.py`:
-
-- a `ChatState` is defined using `TypedDict`
-- messages are managed through `add_messages`
-- a `chat_node()` function sends the conversation to the LLM
-- the workflow is built using `StateGraph`
-- `MemorySaver` is used to keep chat state in memory
-- the model is initialized with `ChatOllama(model="gemma3:4b")`
-
-This means each message is treated as part of the graph state and the LLM response is appended back to the message list.
-
-### 2. UI layer
-The Streamlit apps (`ai_app.py` and `app_basic2.py`) provide a simple chat interface where users can type messages and see responses.
-
-The UI:
-
-- displays the chat history
-- sends the latest user message to the backend
-- receives the model response
-- renders both user and assistant messages in the interface
-
-### 3. Local model execution
-The project uses Ollama to run a local model instead of requiring a cloud-based LLM API. This is useful for:
-
-- local experimentation
-- offline development
-- lower-cost testing
-- learning LLM application workflows without external API keys
-
-## Requirements
+## Prerequisites
 
 Before running the project, make sure you have:
 
 - Python 3.9+
 - pip installed
 - Ollama installed and running locally
-- a compatible model downloaded, such as:
+- a compatible model downloaded, for example:
 
 ```bash
 ollama pull gemma3:4b
 ```
 
-You should also install the required Python packages:
+Install the required Python packages:
 
 ```bash
 pip install streamlit langgraph langchain-core langchain-ollama
 ```
 
+## How it works
+
+### Backend
+
+`backend.py` defines a LangGraph workflow:
+
+- `ChatState` stores conversation messages
+- `add_messages` merges chat history
+- `chat_node()` sends messages to the LLM
+- `MemorySaver` keeps state in memory for the active session
+- `ChatOllama(model="gemma3:4b")` loads the local model
+
+### UI examples
+
+The app folder contains several front-end versions:
+
+- `1app_basic.py`: simple chat UI
+- `2app_basic.py`: chat UI with custom styling
+- `3app_stream.py`: streaming LLM responses in real time
+- `4app_resume.py`: chat history and thread management
+- `ai_app.py`: more polished chat interface with session state and message styling
+
 ## Running the app
 
-### Option 1: Use the main Streamlit app
+From the project directory:
 
 ```bash
 cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
+```
+
+### Run the main style app
+
+```bash
 streamlit run ai_app.py
 ```
 
-### Option 2: Run alternative app
+### Run the basic app
 
 ```bash
-cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
-streamlit run app_basic2.py
+streamlit run 1app_basic.py
 ```
 
-## Example flow
+### Run the styled basic app
 
-1. Start Ollama
-2. Launch the Streamlit application
-3. Enter a prompt in the chat box
-4. The backend sends the message to the LangGraph workflow
-5. The LLM responds using the local model
-6. The response appears in the chat window
+```bash
+streamlit run 2app_basic.py
+```
+
+### Run the streaming app
+
+```bash
+streamlit run 3app_stream.py
+```
+
+### Run the resume/thread app
+
+```bash
+streamlit run 4app_resume.py
+```
+
+## Example workflow
+
+1. Start Ollama locally.
+2. Launch a Streamlit app.
+3. Enter a prompt in the chat box.
+4. The user message is sent to the LangGraph backend.
+5. The backend calls the local Ollama model.
+6. The answer is returned and displayed in the UI.
 
 ## Notes
 
-- This project is a learning/demo project rather than a production-ready chatbot.
-- It uses in-memory checkpoints, so state is lost when the app restarts.
-- The model is configured to use `gemma3:4b`, which may need to be downloaded locally first.
-- For more advanced chatbots, you would typically add features such as:
-  - conversation memory beyond a single session
-  - retrieval-augmented generation (RAG)
-  - tool calling
-  - better error handling
-  - external database storage
-
-## Learning goals
-
-This project is useful for understanding:
-
-- how chatbots are structured in LangGraph
-- how to connect models with custom graph state
-- how Streamlit can be used for interactive AI interfaces
-- how local LLMs can be used without cloud API dependencies
+- This is a learning/demo project rather than a production-ready chatbot.
+- Conversation memory is kept in memory only, so it resets when the app restarts.
+- You may need to download the chosen model before running the app.
+- For real-world usage, you would usually add persistence, user authentication, error handling, logging, and more advanced RAG or tool-calling features.
 
 ## Summary
 
-This project is a compact, beginner-friendly example of a local AI chatbot using LangGraph and Ollama. It combines a backend graph, a Streamlit front-end, and a local LLM to demonstrate how modern conversational AI applications are structured.
-
-
+This project is a beginner-friendly example of a local AI chatbot built with LangGraph and Ollama. It shows how to combine a backend graph, a Streamlit interface, and a local LLM to create a basic conversational AI application.
