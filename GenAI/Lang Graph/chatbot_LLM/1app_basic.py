@@ -1,14 +1,13 @@
+#-------------- Import Library -----------------------------------
 import streamlit as st
-
 from backend import chatbot
-
 from langchain_core.messages import BaseMessage, HumanMessage
-
+#----------------------------------------------------------
 st.title("💬 AI Chatbot")
 # This will not reset the value of message_history
 # on every new message.
 # st.session_state is used to maintain data between Streamlit reruns.
-
+#----------------------------------------------------------
 if 'message_history' not in st.session_state:
     st.session_state['message_history'] = []
 
@@ -17,13 +16,11 @@ if 'message_history' not in st.session_state:
 for message in st.session_state['message_history']:
     with st.chat_message(message['role']):
         st.text(message['content'])
-
+#----------------------------------------------------------
 # Get user input
 user_input = st.chat_input("Type here")
-
 # Define thread
 thread_id = '1'
-
 if user_input:
 
     # Save user message in session state

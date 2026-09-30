@@ -7,12 +7,7 @@ from langchain_core.messages import HumanMessage
 # PAGE CONFIGURATION
 # ==================================================
 
-st.set_page_config(
-    page_title="AI Chatbot",
-    page_icon="💬",
-    layout="wide"
-)
-
+st.set_page_config(page_title="AI Chatbot",page_icon="💬",layout="wide")
 
 # ==================================================
 # CUSTOM CSS
@@ -140,13 +135,7 @@ if user_input:
     # Save user message
     # ----------------------------------------------
 
-    st.session_state["message_history"].append(
-        {
-            "role": "user",
-            "content": user_input
-        }
-    )
-
+    st.session_state["message_history"].append({"role": "user","content": user_input})
 
     # ----------------------------------------------
     # Display user message - RIGHT
@@ -168,27 +157,11 @@ if user_input:
     # Configuration
     # ----------------------------------------------
 
-    config = {
-        "configurable": {
-            "thread_id": thread_id
-        }
-    }
-
-
+    config = {"configurable": {"thread_id": thread_id}}
     # ----------------------------------------------
     # Invoke chatbot
     # ----------------------------------------------
-
-    response = chatbot.invoke(
-        {
-            "messages": [
-                HumanMessage(content=user_input)
-            ]
-        },
-        config=config
-    )
-
-
+    response = chatbot.invoke({"messages": [HumanMessage(content=user_input)]},config=config)
     # ----------------------------------------------
     # Get AI response
     # ----------------------------------------------
@@ -200,15 +173,8 @@ if user_input:
     # Save AI response
     # ----------------------------------------------
 
-    st.session_state["message_history"].append(
-        {
-            "role": "assistant",
-            "content": ai_message
-        }
-    )
-
-
-    # ----------------------------------------------
+    st.session_state["message_history"].append({"role": "assistant","content": ai_message})
+    #---------------------------------------
     # Display AI response - LEFT
     # ----------------------------------------------
 
