@@ -1,272 +1,235 @@
-# LangGraph Basic Tutorials
+# <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35"> Hi, I'm Shashi Kumar
 
-This directory contains a practical set of beginner-to-advanced notebooks for learning and experimenting with LangGraph, a framework for building stateful, graph-based workflows around Large Language Models (LLMs).
-
-The examples in this folder progressively cover:
-- basic workflow construction,
-- conditional logic,
-- parallel execution,
-- prompt chaining,
-- tool calling and external integrations,
-- iterative generation,
-- LLM-powered Q&A,
-- chatbot workflows,
-- persistence, UI-based application patterns,
-- and Model Context Protocol (MCP) concepts.
+<h3 align="center">
+🚀 10+ years of Experience| Generative AI & Agentic AI  | Trainer | Data Analyst | 
+</h3>
 
 ---
 
-## Contents Overview
+## 👨‍💻 About Me
 
-| No. | Notebook | Focus Area | Uses LLM |
-|-----|----------|------------|----------|
-| 1 | `01_BMI_Calculator.ipynb` | Basic workflow and calculation logic | No |
-| 2 | `02_BMI_Calculator_Category.ipynb` | Conditional classification logic | No |
-| 3 | `03_LLM_QA.ipynb` | Q&A workflow with LLM | Yes |
-| 4 | `04_Prompt Chaining.ipynb` | Sequential prompt chaining | Yes |
-| 5 | `05_Cricket_Parallel_workflow.ipynb` | Parallel task execution | No |
-| 6 | `06_Evaluate_Essay_parallelization_workflow.ipynb` | Parallel LLM evaluation | Yes |
-| 7 | `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb` | Branching logic without LLM | No |
-| 8 | `08_LLM Based Review handling conditional workflow.ipynb` | Conditional LLM routing and review handling | Yes |
-| 9 | `09_Iterative work flow_generate tweet.ipynb` | Iterative generation workflow | Yes |
-| 10 | `10_Chatbot_without Persistance.ipynb` | Stateless chatbot example | Yes |
-| 11 | `11_Chatbot_with Persistance.ipynb` | Stateful chatbot with persistence | Yes |
-| 12 | `12_Chatbot_Case Study_With_UI.ipynb` | Chatbot UI case study | Yes |
-| 13 | `13_Tools in Lang Chain_Lang Graph.ipynb` | Tool calling and external function integration | Yes |
-| 14 | `14_MCP.ipynb` | Model Context Protocol (MCP), context sharing, and tool interoperability | Yes |
+🎯  **10+ Years of Industry Experience**
 
-Additional folders:
-- `chatbot_LLM/` - local chatbot project built with Streamlit, LangGraph, and Ollama for practical AI chat application development
-- `image/` - images and diagram references for visual understanding
+🤖 Specialized in **Generative AI, Agentic AI, LLM Engineering & AI Automation, SAS,Python,Spotfir,Clue Points**
+
+🎓 AI Trainer mentoring students and professionals in Full Stack AI Development
+
+💼 Building Production AI Applications using modern AI frameworks
+
+❤️ Passionate about Open Source, AI Education, and Real-World AI Solutions
 
 ---
 
-## Chatbot LLM Folder
+## 🚀 Current Focus
 
-The `chatbot_LLM/` folder contains a small end-to-end chatbot project designed to bring together LangGraph workflow logic with a user-facing web interface.
+- 🧠 Large Language Models (LLMs)
+- 🤖 Agentic AI
+- 🔥 LangGraph
+- 🔗 LangChain
+- 👥 CrewAI
+- 📚 Retrieval Augmented Generation (RAG)
+- 🗄️ Vector Databases
+- ⚡ FastAPI
+- 🐳 Docker
+- ☁️ Cloud Deployment
+- 🚀 AI SaaS Development
 
-### Project Highlights
-- Built with Python and Streamlit
-- Uses LangGraph for workflow/state orchestration
-- Connects to a local LLM via Ollama
-- Demonstrates conversational state handling with memory checkpoints
-- Includes multiple app variants for learning and experimentation
+---
 
-### Files in this folder
-- `ai_app.py` — main Streamlit chatbot app with custom UI styling
-- `app_basic.py` — a simpler beginner-friendly chatbot app
-- `app_basic2.py` — another Streamlit-based chatbot version
-- `backend.py` — LangGraph backend, state definition, and model initialization
-- `README.md` — setup and execution instructions for the chatbot project
+# 💻 Tech Stack
 
-### Core Concepts Covered
-- Chatbot state design
-- LangGraph message flow
-- Model integration with Ollama
-- Streamlit UI integration
-- Local LLM deployment without cloud API dependency
+### Languages
 
-### Typical Tech Stack
-- Python
-- Streamlit
+<p>
+<img src="https://skillicons.dev/icons?i=python,javascript,html,css" />
+</p>
+
+### AI & Machine Learning
+
+<p>
+<img src="https://skillicons.dev/icons?i=tensorflow,pytorch" />
+</p>
+
+### Backend
+
+<p>
+<img src="https://skillicons.dev/icons?i=fastapi,nodejs" />
+</p>
+
+### Database
+
+<p>
+<img src="https://skillicons.dev/icons?i=mysql,mongodb,postgresql" />
+</p>
+
+### Cloud & DevOps
+
+<p>
+<img src="https://skillicons.dev/icons?i=docker,git,github,vscode,linux,aws,azure" />
+</p>
+
+---
+
+# 🚀 Featured Projects
+
+### 🤖 AI SaaS Chatbot
+
+Production Ready Chatbot using
+
+- FastAPI
+- Gemini
+- OpenAI
+- HTML
+- CSS
+- JavaScript
+- Vercel
+
+---
+
+### 📚 RAG Chatbot
+
+- PDF Chat
+- Vector Database
+- ChromaDB
+- FAISS
+- Semantic Search
+- Retrieval Pipeline
+
+---
+
+### 🤖 Agentic AI Projects
+
 - LangGraph
-- LangChain Core
-- LangChain Ollama
-- Ollama local runtime
-
-### Example Run
-```bash
-cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
-streamlit run ai_app.py
-```
-
-This folder is useful for understanding how to turn a LangGraph workflow into an interactive chatbot application using a local model.
+- CrewAI
+- MCP
+- Multi-Agent Systems
+- AI Workflow Automation
 
 ---
 
-## Notebook Details
+### 📈 Machine Learning Projects
 
-### 1. BMI Calculator
-- File: `01_BMI_Calculator.ipynb`
-- Description: A beginner-friendly LangGraph example that calculates BMI from user inputs and returns structured output.
-- Concepts: basic graph nodes, input handling, workflow execution.
-- Use case: building your first workflow without an LLM.
-
-### 2. BMI Calculator with Category Classification
-- File: `02_BMI_Calculator_Category.ipynb`
-- Description: Extends the BMI calculator with conditional logic to classify results into categories such as underweight, normal, overweight, and obese.
-- Concepts: branching, decision-based execution, workflow routing.
-
-### 3. LLM Question Answering System
-- File: `03_LLM_QA.ipynb`
-- Description: Introduces LLM-based question-answering with a conversational workflow.
-- Concepts: LLM integration, context handling, answer generation.
-
-### 4. Prompt Chaining
-- File: `04_Prompt Chaining.ipynb`
-- Description: Demonstrates multistage prompt chaining where one LLM call feeds into the next.
-- Concepts: sequential processing, prompt engineering, multi-step orchestration.
-
-### 5. Cricket Statistics Parallel Workflow
-- File: `05_Cricket_Parallel_workflow.ipynb`
-- Description: Shows how multiple independent calculations can run in parallel.
-- Concepts: parallel execution, aggregation, performance optimization.
-
-### 6. Essay Evaluation with Parallelization
-- File: `06_Evaluate_Essay_parallelization_workflow.ipynb`
-- Description: Evaluates an essay using multiple parallel criteria and combines the results into a final assessment.
-- Concepts: parallel LLM judges, aggregation, scoring systems.
-
-### 7. Quadratic Equation Conditional Workflow (Without LLM)
-- File: `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
-- Description: Builds a conditional workflow for solving quadratic equations based on the discriminant.
-- Concepts: branching logic, mathematical computation, decision routing.
-
-### 8. LLM-Based Review Handling Conditional Workflow
-- File: `08_LLM Based Review handling conditional workflow.ipynb`
-- Description: Uses LLM-based decision logic to handle reviews or moderation-style tasks based on conditional routing.
-- Concepts: conditional branching, hybrid logic, review automation.
-
-### 9. Iterative Workflow for Tweet Generation
-- File: `09_Iterative work flow_generate tweet.ipynb`
-- Description: Demonstrates iterative refinement in a workflow that generates and improves tweet content.
-- Concepts: iteration, feedback loops, generation quality improvement.
-
-### 10. Chatbot without Persistence
-- File: `10_Chatbot_without Persistance.ipynb`
-- Description: A simple chatbot example without remembering past conversation state.
-- Concepts: stateless conversation handling, LLM interaction.
-
-### 11. Chatbot with Persistence
-- File: `11_Chatbot_with Persistance.ipynb`
-- Description: Builds on the chatbot idea by adding persistence so the application retains memory across interactions.
-- Concepts: conversation memory, storage, stateful chat apps.
-
-### 12. Chatbot Case Study with UI
-- File: `12_Chatbot_Case Study_With_UI.ipynb`
-- Description: A practical chatbot case study with a user interface and more realistic application flow.
-- Concepts: app integration, UI, real-world chatbot patterns.
-
-### 13. Tools in LangChain / LangGraph
-- File: `13_Tools in Lang Chain_Lang Graph.ipynb`
-- Description: Shows how workflows can call external tools, functions, or APIs during execution to enrich LLM reasoning and task completion.
-- Concepts: tool calling, function execution, structured tool outputs, agentic workflows.
-
-### 14. Model Context Protocol (MCP)
-- File: `14_MCP.ipynb`
-- Description: Explains the concept of context in AI systems, introduces MCP, and demonstrates how MCP standardizes tool and context sharing between LLM applications and external systems.
-- Concepts: context window, context management, MCP architecture, lifecycle, tool interoperability, AI integrations.
+- Classification
+- Regression
+- NLP
+- Computer Vision
+- Time Series
+- Recommendation Systems
 
 ---
 
-## Learning Path
 
-A suggested order to work through this folder:
+# 📊 GitHub Stats
 
-1. `01_BMI_Calculator.ipynb` — start with basic graphs and node logic
-2. `02_BMI_Calculator_Category.ipynb` — learn conditional routing
-3. `03_LLM_QA.ipynb` — connect LangGraph with LLMs
-4. `04_Prompt Chaining.ipynb` — explore multi-step LLM tasks
-5. `05_Cricket_Parallel_workflow.ipynb` — understand parallel execution
-6. `06_Evaluate_Essay_parallelization_workflow.ipynb` — advanced parallel LLM orchestration
-7. `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb` — branching logic without external models
-8. `08_LLM Based Review handling conditional workflow.ipynb` — conditional LLM routing
-9. `09_Iterative work flow_generate tweet.ipynb` — iterative generation workflows
-10. `10_Chatbot_without Persistance.ipynb` — basic chatbot flow
-11. `11_Chatbot_with Persistance.ipynb` — stateful conversations
-12. `12_Chatbot_Case Study_With_UI.ipynb` — practical full application pattern
-13. `13_Tools in Lang Chain_Lang Graph.ipynb` — tool-use and external-action orchestration
-14. `14_MCP.ipynb` — MCP patterns and standardized context/tool integration
-15. `chatbot_LLM/` — move to a real interactive local chatbot app built with Streamlit + Ollama
+<p align="center">
+
+<img height="180em" src="https://github-readme-stats.vercel.app/api?username=shashi108&show_icons=true&theme=tokyonight"/>
+
+<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=shashi108&layout=compact&theme=tokyonight"/>
+
+</p>
 
 ---
 
-## Prerequisites
+# 🔥 GitHub Streak
 
-- Python 3.8+
-- Jupyter Notebook or JupyterLab
-- `langgraph`
-- `langchain` or model-specific integrations
-- Ollama installed and running for the `chatbot_LLM` app
-- LLM provider credentials for notebooks using cloud-based models
-- Optional MCP client/server libraries if you want to experiment with the `14_MCP.ipynb` example in a local environment
+<p align="center">
 
-Typical installation:
+<img src="https://streak-stats.demolab.com?user=shashi108&theme=tokyonight"/>
 
-```bash
-pip install langgraph langchain streamlit langchain-ollama
-```
-
-For LLM-based notebooks, you may also need provider-specific packages such as:
-
-```bash
-pip install langchain_openai
-```
-
-or other integrations depending on your chosen model provider.
+</p>
 
 ---
 
-## Quick Start
+# 🏆 GitHub Trophy
 
-1. Clone or download this repository.
-2. Open the folder `GenAI/Lang Graph/Lang Graph Basic`.
-3. Launch Jupyter Notebook or JupyterLab for the notebook-based exercises.
-4. For the chatbot app, run the Streamlit project in `chatbot_LLM/`.
-5. For LLM-based examples, ensure your environment variables or API keys are configured before execution.
+<p align="center">
 
-Example environment variable for OpenAI:
+<img src="https://github-profile-trophy.vercel.app/?username=shashi108&theme=algolia&margin-w=15"/>
 
-```bash
-export OPENAI_API_KEY="your-api-key"
-```
-
-For the local Ollama chatbot:
-
-```bash
-ollama pull gemma3:4b
-cd "GenAI/Lang Graph/Lang Graph Basic/chatbot_LLM"
-streamlit run ai_app.py
-```
+</p>
 
 ---
 
-## Key Concepts Covered
+# 📈 Contribution Graph
 
-- Basic workflow creation
-- Conditional routing
-- Multi-step orchestration
-- Prompt chaining
-- Parallel execution
-- Iterative refinement
-- Stateful memory / persistence
-- Chatbot application patterns
-- Tool calling and function execution
-- Local LLM integration with Ollama
-- UI-driven conversational agents
-- LLM evaluation and summarization
-- Model Context Protocol (MCP)
-- Context engineering and standardization
+<p align="center">
+
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=shashi108&theme=github-compact"/>
+
+</p>
 
 ---
 
-## Notes
+# 🎯 Areas of Expertise
+✔ SAS
 
-- Each notebook is designed to be mostly standalone.
-- Some notebooks require LLM API access and may not run without configured credentials.
-- The `chatbot_LLM/` folder is a practical application layer built on top of the notebook examples.
-- Non-LLM notebooks are useful for understanding LangGraph flow design before adding model interactions.
-- The `image` directory provides visual references and diagrams.
-- Notebook 14 introduces MCP, which is especially useful when connecting LLM-based agents to external tools, services, and contextual data sources.
+✔ Spotfire
+
+✔ Clue Pointd
+
+✔ Python
+
+✔ Machine Learning
+
+✔ Deep Learning
+
+✔ NLP
+
+✔ LLM Engineering
+
+✔ Prompt Engineering
+
+✔ RAG
+
+✔ Agentic AI
+
+✔ Multi-Agent Systems
+
+✔ AI SaaS
+
+✔ FastAPI
+
+✔ Docker
+
+✔ Cloud Deployment
 
 ---
 
-## Contributing
+# 🤝 Let's Connect
 
-Feel free to extend this collection with more examples, improvements, or advanced LangGraph use cases.
+💼 GitHub
+
+https://github.com/shashi108
+
+# ⭐ Quote
+
+> "The future belongs to those who build AI, not just use AI."
 
 ---
 
-Created: 2026
-Framework: LangGraph
-Language: Python
+<h3 align="center">
+
+⭐ Thanks for visiting my profile ⭐
+
+Happy Coding 🚀
+
+</h3>## Hi there 👋
+
+## 🤝 Let's Connect
+
+<p align="center">
+
+<a href="https://github.com/shashi108/">
+<img src="https://img.shields.io/badge/GitHub-shashi108?style=for-the-badge&logo=github"/>
+</a>
+
+<a href="https://www.linkedin.com/in/shashi-kumar-078877a7/">
+<img src="https://img.shields.io/badge/LinkedIn-Shashi Kumar-0077B5?style=for-the-badge&logo=linkedin"/>
+</a>
+
+<a href="mailto:your-email@gmail.com">
+<img src="https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail"/>
+</a>
+
+</p>

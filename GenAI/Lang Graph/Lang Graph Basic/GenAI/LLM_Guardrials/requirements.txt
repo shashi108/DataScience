@@ -1,0 +1,7 @@
+#install libraries for the project
+fastapi #creats Api and handle requests
+uvicorn[standard] #start fastapiserver
+jinja2 #Connect python with HTML templates
+python-dotenv #load environment variables - load API keys from .env file
+google-genai #Allow python to communicate with Google gemini AI
+pydantic #data validation and settings management
