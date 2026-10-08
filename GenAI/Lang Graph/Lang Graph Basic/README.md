@@ -7,10 +7,12 @@ The examples in this folder progressively cover:
 - conditional logic,
 - parallel execution,
 - prompt chaining,
+- tool calling and external integrations,
 - iterative generation,
 - LLM-powered Q&A,
 - chatbot workflows,
-- persistence and UI-based application patterns.
+- persistence, UI-based application patterns,
+- and Model Context Protocol (MCP) concepts.
 
 ---
 
@@ -18,18 +20,20 @@ The examples in this folder progressively cover:
 
 | No. | Notebook | Focus Area | Uses LLM |
 |-----|----------|------------|----------|
-| 1 | `1_BMI_Calculator.ipynb` | Basic workflow and calculation logic | No |
-| 2 | `2_BMI_Calculator_Category.ipynb` | Conditional classification logic | No |
-| 3 | `3_LLM_QA.ipynb` | Q&A workflow with LLM | Yes |
-| 4 | `4_Prompt Chaining.ipynb` | Sequential prompt chaining | Yes |
-| 5 | `5_Cricket_Parallel_workflow.ipynb` | Parallel task execution | No |
-| 6 | `6_Evaluate_Essay_parallelization_workflow.ipynb` | Parallel LLM evaluation | Yes |
-| 7 | `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb` | Branching logic without LLM | No |
-| 8 | `8_LLM Based Review handling conditional workflow.ipynb` | Conditional LLM routing and review handling | Yes |
-| 9 | `9_Iterative work flow_generate tweet.ipynb` | Iterative generation workflow | Yes |
+| 1 | `01_BMI_Calculator.ipynb` | Basic workflow and calculation logic | No |
+| 2 | `02_BMI_Calculator_Category.ipynb` | Conditional classification logic | No |
+| 3 | `03_LLM_QA.ipynb` | Q&A workflow with LLM | Yes |
+| 4 | `04_Prompt Chaining.ipynb` | Sequential prompt chaining | Yes |
+| 5 | `05_Cricket_Parallel_workflow.ipynb` | Parallel task execution | No |
+| 6 | `06_Evaluate_Essay_parallelization_workflow.ipynb` | Parallel LLM evaluation | Yes |
+| 7 | `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb` | Branching logic without LLM | No |
+| 8 | `08_LLM Based Review handling conditional workflow.ipynb` | Conditional LLM routing and review handling | Yes |
+| 9 | `09_Iterative work flow_generate tweet.ipynb` | Iterative generation workflow | Yes |
 | 10 | `10_Chatbot_without Persistance.ipynb` | Stateless chatbot example | Yes |
 | 11 | `11_Chatbot_with Persistance.ipynb` | Stateful chatbot with persistence | Yes |
 | 12 | `12_Chatbot_Case Study_With_UI.ipynb` | Chatbot UI case study | Yes |
+| 13 | `13_Tools in Lang Chain_Lang Graph.ipynb` | Tool calling and external function integration | Yes |
+| 14 | `14_MCP.ipynb` | Model Context Protocol (MCP), context sharing, and tool interoperability | Yes |
 
 Additional folders:
 - `chatbot_LLM/` - local chatbot project built with Streamlit, LangGraph, and Ollama for practical AI chat application development
@@ -83,48 +87,48 @@ This folder is useful for understanding how to turn a LangGraph workflow into an
 ## Notebook Details
 
 ### 1. BMI Calculator
-- File: `1_BMI_Calculator.ipynb`
+- File: `01_BMI_Calculator.ipynb`
 - Description: A beginner-friendly LangGraph example that calculates BMI from user inputs and returns structured output.
 - Concepts: basic graph nodes, input handling, workflow execution.
 - Use case: building your first workflow without an LLM.
 
 ### 2. BMI Calculator with Category Classification
-- File: `2_BMI_Calculator_Category.ipynb`
+- File: `02_BMI_Calculator_Category.ipynb`
 - Description: Extends the BMI calculator with conditional logic to classify results into categories such as underweight, normal, overweight, and obese.
 - Concepts: branching, decision-based execution, workflow routing.
 
 ### 3. LLM Question Answering System
-- File: `3_LLM_QA.ipynb`
+- File: `03_LLM_QA.ipynb`
 - Description: Introduces LLM-based question-answering with a conversational workflow.
 - Concepts: LLM integration, context handling, answer generation.
 
 ### 4. Prompt Chaining
-- File: `4_Prompt Chaining.ipynb`
+- File: `04_Prompt Chaining.ipynb`
 - Description: Demonstrates multistage prompt chaining where one LLM call feeds into the next.
 - Concepts: sequential processing, prompt engineering, multi-step orchestration.
 
 ### 5. Cricket Statistics Parallel Workflow
-- File: `5_Cricket_Parallel_workflow.ipynb`
+- File: `05_Cricket_Parallel_workflow.ipynb`
 - Description: Shows how multiple independent calculations can run in parallel.
 - Concepts: parallel execution, aggregation, performance optimization.
 
 ### 6. Essay Evaluation with Parallelization
-- File: `6_Evaluate_Essay_parallelization_workflow.ipynb`
+- File: `06_Evaluate_Essay_parallelization_workflow.ipynb`
 - Description: Evaluates an essay using multiple parallel criteria and combines the results into a final assessment.
 - Concepts: parallel LLM judges, aggregation, scoring systems.
 
 ### 7. Quadratic Equation Conditional Workflow (Without LLM)
-- File: `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
+- File: `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb`
 - Description: Builds a conditional workflow for solving quadratic equations based on the discriminant.
 - Concepts: branching logic, mathematical computation, decision routing.
 
 ### 8. LLM-Based Review Handling Conditional Workflow
-- File: `8_LLM Based Review handling conditional workflow.ipynb`
+- File: `08_LLM Based Review handling conditional workflow.ipynb`
 - Description: Uses LLM-based decision logic to handle reviews or moderation-style tasks based on conditional routing.
 - Concepts: conditional branching, hybrid logic, review automation.
 
 ### 9. Iterative Workflow for Tweet Generation
-- File: `9_Iterative work flow_generate tweet.ipynb`
+- File: `09_Iterative work flow_generate tweet.ipynb`
 - Description: Demonstrates iterative refinement in a workflow that generates and improves tweet content.
 - Concepts: iteration, feedback loops, generation quality improvement.
 
@@ -143,25 +147,37 @@ This folder is useful for understanding how to turn a LangGraph workflow into an
 - Description: A practical chatbot case study with a user interface and more realistic application flow.
 - Concepts: app integration, UI, real-world chatbot patterns.
 
+### 13. Tools in LangChain / LangGraph
+- File: `13_Tools in Lang Chain_Lang Graph.ipynb`
+- Description: Shows how workflows can call external tools, functions, or APIs during execution to enrich LLM reasoning and task completion.
+- Concepts: tool calling, function execution, structured tool outputs, agentic workflows.
+
+### 14. Model Context Protocol (MCP)
+- File: `14_MCP.ipynb`
+- Description: Explains the concept of context in AI systems, introduces MCP, and demonstrates how MCP standardizes tool and context sharing between LLM applications and external systems.
+- Concepts: context window, context management, MCP architecture, lifecycle, tool interoperability, AI integrations.
+
 ---
 
 ## Learning Path
 
 A suggested order to work through this folder:
 
-1. `1_BMI_Calculator.ipynb` — start with basic graphs and node logic
-2. `2_BMI_Calculator_Category.ipynb` — learn conditional routing
-3. `3_LLM_QA.ipynb` — connect LangGraph with LLMs
-4. `4_Prompt Chaining.ipynb` — explore multi-step LLM tasks
-5. `5_Cricket_Parallel_workflow.ipynb` — understand parallel execution
-6. `6_Evaluate_Essay_parallelization_workflow.ipynb` — advanced parallel LLM orchestration
-7. `7_Quadratic Equation Conditional Workflow (Without LLM).ipynb` — branching logic without external models
-8. `8_LLM Based Review handling conditional workflow.ipynb` — conditional LLM routing
-9. `9_Iterative work flow_generate tweet.ipynb` — iterative generation workflows
+1. `01_BMI_Calculator.ipynb` — start with basic graphs and node logic
+2. `02_BMI_Calculator_Category.ipynb` — learn conditional routing
+3. `03_LLM_QA.ipynb` — connect LangGraph with LLMs
+4. `04_Prompt Chaining.ipynb` — explore multi-step LLM tasks
+5. `05_Cricket_Parallel_workflow.ipynb` — understand parallel execution
+6. `06_Evaluate_Essay_parallelization_workflow.ipynb` — advanced parallel LLM orchestration
+7. `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb` — branching logic without external models
+8. `08_LLM Based Review handling conditional workflow.ipynb` — conditional LLM routing
+9. `09_Iterative work flow_generate tweet.ipynb` — iterative generation workflows
 10. `10_Chatbot_without Persistance.ipynb` — basic chatbot flow
 11. `11_Chatbot_with Persistance.ipynb` — stateful conversations
 12. `12_Chatbot_Case Study_With_UI.ipynb` — practical full application pattern
-13. `chatbot_LLM/` — move to a real interactive local chatbot app built with Streamlit + Ollama
+13. `13_Tools in Lang Chain_Lang Graph.ipynb` — tool-use and external-action orchestration
+14. `14_MCP.ipynb` — MCP patterns and standardized context/tool integration
+15. `chatbot_LLM/` — move to a real interactive local chatbot app built with Streamlit + Ollama
 
 ---
 
@@ -173,6 +189,7 @@ A suggested order to work through this folder:
 - `langchain` or model-specific integrations
 - Ollama installed and running for the `chatbot_LLM` app
 - LLM provider credentials for notebooks using cloud-based models
+- Optional MCP client/server libraries if you want to experiment with the `14_MCP.ipynb` example in a local environment
 
 Typical installation:
 
@@ -224,9 +241,12 @@ streamlit run ai_app.py
 - Iterative refinement
 - Stateful memory / persistence
 - Chatbot application patterns
+- Tool calling and function execution
 - Local LLM integration with Ollama
 - UI-driven conversational agents
 - LLM evaluation and summarization
+- Model Context Protocol (MCP)
+- Context engineering and standardization
 
 ---
 
@@ -236,7 +256,8 @@ streamlit run ai_app.py
 - Some notebooks require LLM API access and may not run without configured credentials.
 - The `chatbot_LLM/` folder is a practical application layer built on top of the notebook examples.
 - Non-LLM notebooks are useful for understanding LangGraph flow design before adding model interactions.
-- Use the `image` directory for visual references and diagrams.
+- The `image` directory provides visual references and diagrams.
+- Notebook 14 introduces MCP, which is especially useful when connecting LLM-based agents to external tools, services, and contextual data sources.
 
 ---
 
