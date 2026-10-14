@@ -1,235 +1,116 @@
-# <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35"> Hi, I'm Shashi Kumar
+# Lang Graph Basic
 
-<h3 align="center">
-🚀 10+ years of Experience| Generative AI & Agentic AI  | Trainer | Data Analyst | 
-</h3>
+This folder contains a practical set of notebooks covering the fundamentals of LangGraph, LangChain, prompt orchestration, conditional workflows, and agentic AI patterns.
 
----
+The examples move from simple LLM interactions to more advanced workflows such as:
 
-## 👨‍💻 About Me
+- prompt chaining
+- parallelized execution
+- conditional routing
+- iterative generation
+- chatbot design
+- tool use integration
+- MCP-based workflows
 
-🎯  **10+ Years of Industry Experience**
+## Project Focus
 
-🤖 Specialized in **Generative AI, Agentic AI, LLM Engineering & AI Automation, SAS,Python,Spotfir,Clue Points**
+This learning path is designed to help understand how to build LLM-powered applications using structured, stateful workflows instead of isolated prompt calls.
 
-🎓 AI Trainer mentoring students and professionals in Full Stack AI Development
+Core topics covered:
 
-💼 Building Production AI Applications using modern AI frameworks
+- LangChain basics
+- Prompt engineering
+- LLM-driven decision making
+- Multi-step workflows
+- Chatbot persistence and UI integration
+- Tool calling and workflow automation
+- Model Context Protocol (MCP)
+- Agentic orchestration with LangGraph
 
-❤️ Passionate about Open Source, AI Education, and Real-World AI Solutions
+## Notebook Overview
 
----
+### Foundations and workflows
 
-## 🚀 Current Focus
+- `01_BMI_Calculator.ipynb` — simple calculator-style workflow using LLM-driven logic
+- `02_BMI_Calculator_Category.ipynb` — classification based on BMI calculation
+- `03_LLM_QA.ipynb` — basic question answering using an LLM
+- `04_Prompt Chaining.ipynb` — chained prompts for sequential reasoning
+- `05_Cricket_Parallel_workflow.ipynb` — parallel workflow execution for multiple tasks
+- `06_Evaluate_Essay_parallelization_workflow.ipynb` — parallel evaluation workflow for generated content
 
-- 🧠 Large Language Models (LLMs)
-- 🤖 Agentic AI
-- 🔥 LangGraph
-- 🔗 LangChain
-- 👥 CrewAI
-- 📚 Retrieval Augmented Generation (RAG)
-- 🗄️ Vector Databases
-- ⚡ FastAPI
-- 🐳 Docker
-- ☁️ Cloud Deployment
-- 🚀 AI SaaS Development
+### Conditional and iterative logic
 
----
+- `07_Quadratic Equation Conditional Workflow (Without LLM).ipynb` — conditional logic without an LLM
+- `08_LLM Based Review handling conditional workflow.ipynb` — LLM-based review and decision branching
+- `09_Iterative work flow_generate tweet.ipynb` — iterative generation workflow
 
-# 💻 Tech Stack
+### Chatbots and interaction patterns
 
-### Languages
+- `10_Chatbot_without Persistance.ipynb` — basic chatbot without memory
+- `11_Chatbot_with Persistance.ipynb` — stateful chatbot with persistence
+- `12_Chatbot_Case Study_With_UI.ipynb` — chatbot case study with user interface
+- `Basic Chatbot.ipynb` — general end-to-end chatbot example
 
-<p>
-<img src="https://skillicons.dev/icons?i=python,javascript,html,css" />
-</p>
+### Tools and advanced AI systems
 
-### AI & Machine Learning
+- `13_Tools in Lang Chain_Lang Graph.ipynb` — tool calling in LangChain/LangGraph
+- `14_MCP.ipynb` — Model Context Protocol examples
+- `15_MCP_Langgraph.ipynb` — MCP integrated with LangGraph
+- `Demo client` — demo application client
+- `MCP Demo` — MCP demonstration project
+- `MCP Demo Remote` — remote MCP demo setup
 
-<p>
-<img src="https://skillicons.dev/icons?i=tensorflow,pytorch" />
-</p>
+## Requirements
 
-### Backend
+To run the notebooks successfully, install the following:
 
-<p>
-<img src="https://skillicons.dev/icons?i=fastapi,nodejs" />
-</p>
+```bash
+pip install python-dotenv langchain langgraph openai jupyter ipykernel
+```
 
-### Database
+Depending on the notebook, additional libraries may be required such as:
 
-<p>
-<img src="https://skillicons.dev/icons?i=mysql,mongodb,postgresql" />
-</p>
+- pandas
+- numpy
+- requests
+- streamlit
+- fastapi
+- pydantic
 
-### Cloud & DevOps
+## Suggested Workflow
 
-<p>
-<img src="https://skillicons.dev/icons?i=docker,git,github,vscode,linux,aws,azure" />
-</p>
+1. Start from the basic notebooks (`01` to `04`)
+2. Move to conditional and iterative workflows (`05` to `09`)
+3. Explore chatbot implementation patterns (`10` to `12`)
+4. Learn tool integration and MCP concepts (`13` to `15`)
 
----
+## Recommended Setup
 
-# 🚀 Featured Projects
+- Python 3.9+
+- Jupyter Notebook or VS Code with Python extension
+- API key configured for the selected LLM provider
+- Virtual environment for dependency isolation
 
-### 🤖 AI SaaS Chatbot
+## Example Environment Variables
 
-Production Ready Chatbot using
+```bash
+OPENAI_API_KEY=your_key_here
+```
 
-- FastAPI
-- Gemini
-- OpenAI
-- HTML
-- CSS
-- JavaScript
-- Vercel
+You may also use other providers supported by LangChain or LangGraph depending on the notebook implementation.
 
----
+## Notes
 
-### 📚 RAG Chatbot
+This folder is intended for hands-on learning and experimentation. It is best used a notebook-by-notebook progression from beginner to advanced agentic workflow patterns.
 
-- PDF Chat
-- Vector Database
-- ChromaDB
-- FAISS
-- Semantic Search
-- Retrieval Pipeline
+## Repository Context
 
----
+This directory belongs to the repository:
 
-### 🤖 Agentic AI Projects
+- `shashi108/DataScience`
 
-- LangGraph
-- CrewAI
-- MCP
-- Multi-Agent Systems
-- AI Workflow Automation
-
----
-
-### 📈 Machine Learning Projects
-
-- Classification
-- Regression
-- NLP
-- Computer Vision
-- Time Series
-- Recommendation Systems
+It is part of the broader Generative AI learning path and demonstrates foundational to intermediate LangGraph and LLM orchestration concepts.
 
 ---
 
-
-# 📊 GitHub Stats
-
-<p align="center">
-
-<img height="180em" src="https://github-readme-stats.vercel.app/api?username=shashi108&show_icons=true&theme=tokyonight"/>
-
-<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=shashi108&layout=compact&theme=tokyonight"/>
-
-</p>
-
----
-
-# 🔥 GitHub Streak
-
-<p align="center">
-
-<img src="https://streak-stats.demolab.com?user=shashi108&theme=tokyonight"/>
-
-</p>
-
----
-
-# 🏆 GitHub Trophy
-
-<p align="center">
-
-<img src="https://github-profile-trophy.vercel.app/?username=shashi108&theme=algolia&margin-w=15"/>
-
-</p>
-
----
-
-# 📈 Contribution Graph
-
-<p align="center">
-
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=shashi108&theme=github-compact"/>
-
-</p>
-
----
-
-# 🎯 Areas of Expertise
-✔ SAS
-
-✔ Spotfire
-
-✔ Clue Pointd
-
-✔ Python
-
-✔ Machine Learning
-
-✔ Deep Learning
-
-✔ NLP
-
-✔ LLM Engineering
-
-✔ Prompt Engineering
-
-✔ RAG
-
-✔ Agentic AI
-
-✔ Multi-Agent Systems
-
-✔ AI SaaS
-
-✔ FastAPI
-
-✔ Docker
-
-✔ Cloud Deployment
-
----
-
-# 🤝 Let's Connect
-
-💼 GitHub
-
-https://github.com/shashi108
-
-# ⭐ Quote
-
-> "The future belongs to those who build AI, not just use AI."
-
----
-
-<h3 align="center">
-
-⭐ Thanks for visiting my profile ⭐
-
-Happy Coding 🚀
-
-</h3>## Hi there 👋
-
-## 🤝 Let's Connect
-
-<p align="center">
-
-<a href="https://github.com/shashi108/">
-<img src="https://img.shields.io/badge/GitHub-shashi108?style=for-the-badge&logo=github"/>
-</a>
-
-<a href="https://www.linkedin.com/in/shashi-kumar-078877a7/">
-<img src="https://img.shields.io/badge/LinkedIn-Shashi Kumar-0077B5?style=for-the-badge&logo=linkedin"/>
-</a>
-
-<a href="mailto:your-email@gmail.com">
-<img src="https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail"/>
-</a>
-
-</p>
+Built for learning, experimentation, and practical AI workflow development.
