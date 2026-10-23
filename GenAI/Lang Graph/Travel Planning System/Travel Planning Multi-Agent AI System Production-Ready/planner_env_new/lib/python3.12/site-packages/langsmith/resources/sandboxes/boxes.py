@@ -1,0 +1,1820 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+from typing import Dict, List
+from typing_extensions import Literal
+
+from ..._httpx import httpx
+from ..._types import Body, Omit, Query, Headers, NoneType, NotGiven, SequenceNotStr, omit, not_given
+from ..._utils import path_template, maybe_transform, async_maybe_transform
+from ..._compat import cached_property
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
+    to_raw_response_wrapper,
+    to_streamed_response_wrapper,
+    async_to_raw_response_wrapper,
+    async_to_streamed_response_wrapper,
+)
+from ...pagination import SyncItemsCursorGetPagination, AsyncItemsCursorGetPagination
+from ..._base_client import AsyncPaginator, make_request_options
+from ...types.sandboxes import (
+    box_list_params,
+    box_create_params,
+    box_update_params,
+    box_create_snapshot_params,
+    box_list_service_urls_params,
+    box_delete_service_url_params,
+    box_generate_service_url_params,
+    box_generate_download_url_params,
+)
+from ...types.sandbox_response import SandboxResponse
+from ...types.snapshot_response import SnapshotResponse
+from ...types.service_url_response import ServiceURLResponse
+from ...types.download_url_response import DownloadURLResponse
+from ...types.sandbox_status_response import SandboxStatusResponse
+from ...types.sandboxes.box_list_service_urls_response import BoxListServiceURLsResponse
+
+__all__ = ["BoxesResource", "AsyncBoxesResource"]
+
+
+class BoxesResource(SyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> BoxesResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#accessing-raw-response-data-eg-headers
+        """
+        return BoxesResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> BoxesResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#with_streaming_response
+        """
+        return BoxesResourceWithStreamingResponse(self)
+
+    def create(
+        self,
+        *,
+        access_delegation: box_create_params.AccessDelegation | Omit = omit,
+        cpu_millicores: int | Omit = omit,
+        delete_after_stop_seconds: int | Omit = omit,
+        env_vars: Dict[str, str] | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        idle_ttl_seconds: int | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        mem_bytes: int | Omit = omit,
+        mount_config: box_create_params.MountConfig | Omit = omit,
+        name: str | Omit = omit,
+        preserve_memory_on_stop: bool | Omit = omit,
+        proxy_config: box_create_params.ProxyConfig | Omit = omit,
+        restore_memory: bool | Omit = omit,
+        run_config: box_create_params.RunConfig | Omit = omit,
+        snapshot: str | Omit = omit,
+        snapshot_id: str | Omit = omit,
+        snapshot_name: str | Omit = omit,
+        tag_value_ids: SequenceNotStr[str] | Omit = omit,
+        vcpus: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Create a new sandbox from a snapshot.
+
+        Provide at most one of `snapshot_id` or
+        `snapshot_name`; if neither is provided, the server uses the default snapshot.
+        `snapshot_name` accepts a Docker-style `name` or `name:tag` reference (a bare
+        name resolves to `name:latest`).
+
+        Args:
+          access_delegation: AccessDelegation lets code inside the sandbox call the LangSmith API as you,
+              with at most the permissions granted here. Omit for no access.
+
+          cpu_millicores: CPUMillicores optionally requests CPU at millicore granularity (e.g. 500 = 0.5
+              vCPU); takes precedence over VCPUs. Fractional (sub-vCPU) values are not
+              available for every sandbox.
+
+          labels: Labels are free-form key/value metadata persisted with the sandbox and returned
+              on reads. Labels from the source snapshot are inherited unless overridden here.
+
+          mem_bytes: Memory for the sandbox, in bytes. Memory is tied to CPU at 4 GiB per vCPU: omit
+              it and it follows that ratio; set it and it must stay within 50% of the ratio
+              for the requested CPU, so a 1 vCPU sandbox accepts 2-6 GiB. Setting memory
+              without CPU derives the CPU from the same ratio. Maximum 64 GiB.
+
+          preserve_memory_on_stop: PreserveMemoryOnStop, when true, suspends the sandbox's memory on a voluntary
+              stop (idle timeout or explicit stop) so the next start resumes from where it
+              left off. Default false discards memory and keeps only the filesystem, so the
+              next start is a cold boot. Restarts triggered by infrastructure maintenance
+              always preserve memory regardless of this setting.
+
+          restore_memory:
+              RestoreMemory selects how the sandbox handles a snapshot's captured memory:
+
+              nil → if-present: resume from memory when the snapshot has it, else cold-boot
+              (default). true → always: resume from memory; rejected if the snapshot has none.
+              false → never: always cold-boot.
+
+              Applies to this request only.
+
+          run_config: RunConfig overrides the snapshot's run config for this sandbox: user and
+              work_dir replace the snapshot's, env_vars merge over it. The result is what the
+              sandbox boots with, and what a snapshot captured from it carries.
+
+          snapshot: Snapshot is a Docker-style name or name:tag reference to boot from. A bare name
+              resolves to name:latest.
+
+          snapshot_name: SnapshotName is a synonym for Snapshot, accepted for compatibility with clients
+              that predate it. Set one or the other.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/api/v2/sandboxes/boxes",
+            body=maybe_transform(
+                {
+                    "access_delegation": access_delegation,
+                    "cpu_millicores": cpu_millicores,
+                    "delete_after_stop_seconds": delete_after_stop_seconds,
+                    "env_vars": env_vars,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "idle_ttl_seconds": idle_ttl_seconds,
+                    "labels": labels,
+                    "mem_bytes": mem_bytes,
+                    "mount_config": mount_config,
+                    "name": name,
+                    "preserve_memory_on_stop": preserve_memory_on_stop,
+                    "proxy_config": proxy_config,
+                    "restore_memory": restore_memory,
+                    "run_config": run_config,
+                    "snapshot": snapshot,
+                    "snapshot_id": snapshot_id,
+                    "snapshot_name": snapshot_name,
+                    "tag_value_ids": tag_value_ids,
+                    "vcpus": vcpus,
+                },
+                box_create_params.BoxCreateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    def retrieve(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Retrieve a sandbox by name.
+
+        Stale provisioning sandboxes are auto-failed.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._get(
+            path_template("/api/v2/sandboxes/boxes/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    def update(
+        self,
+        path_name: str,
+        *,
+        cpu_millicores: int | Omit = omit,
+        delete_after_stop_seconds: int | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        idle_ttl_seconds: int | Omit = omit,
+        mem_bytes: int | Omit = omit,
+        body_name: str | Omit = omit,
+        proxy_config: box_update_params.ProxyConfig | Omit = omit,
+        run_config: box_update_params.RunConfig | Omit = omit,
+        tag_value_ids: SequenceNotStr[str] | Omit = omit,
+        vcpus: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """
+        Update a sandbox's display name, retention, resources, tags, or proxy
+        configuration. The name must be unique within the tenant. Proxy configuration
+        sent to a sandbox that is not running is stored and applied when it next starts.
+
+        Args:
+          mem_bytes: New memory for the sandbox, in bytes. The 4 GiB per vCPU ratio applies when the
+              sandbox is created; a resize enforces only the maximum of 64 GiB.
+
+          run_config: RunConfig changes what subsequent commands run with: user and work_dir replace
+              the current values, env_vars merge over them. Commands already running are
+              unaffected.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_name:
+            raise ValueError(f"Expected a non-empty value for `path_name` but received {path_name!r}")
+        return self._patch(
+            path_template("/api/v2/sandboxes/boxes/{path_name}", path_name=path_name),
+            body=maybe_transform(
+                {
+                    "cpu_millicores": cpu_millicores,
+                    "delete_after_stop_seconds": delete_after_stop_seconds,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "idle_ttl_seconds": idle_ttl_seconds,
+                    "mem_bytes": mem_bytes,
+                    "body_name": body_name,
+                    "proxy_config": proxy_config,
+                    "run_config": run_config,
+                    "tag_value_ids": tag_value_ids,
+                    "vcpus": vcpus,
+                },
+                box_update_params.BoxUpdateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    def list(
+        self,
+        *,
+        created_by: str | Omit = omit,
+        cursor: str | Omit = omit,
+        label: SequenceNotStr[str] | Omit = omit,
+        limit: int | Omit = omit,
+        name_contains: str | Omit = omit,
+        offset: int | Omit = omit,
+        page_size: int | Omit = omit,
+        sort_by: str | Omit = omit,
+        sort_direction: str | Omit = omit,
+        sort_order: str | Omit = omit,
+        status: str | Omit = omit,
+        tag_value_id: SequenceNotStr[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SyncItemsCursorGetPagination[SandboxResponse]:
+        """
+        List sandboxes for the authenticated tenant, with optional filtering, sorting,
+        and pagination. Page with page_size and cursor: replay the response's
+        next_cursor until it comes back null, which is the only signal that no pages
+        remain. Cursors are opaque and only valid on this endpoint; do not parse or
+        construct one.
+
+        Args:
+          created_by: Filter by creator identity. Only 'me' is supported.
+
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          label: Filter by label. Repeatable; all must match. Use 'key' to match on key presence
+              or 'key=value' for equality.
+
+          limit: Deprecated: use page_size. Maximum number of results
+
+          name_contains: Filter by name substring
+
+          offset: Deprecated: use cursor. Pagination offset
+
+          page_size: Number of results per page
+
+          sort_by: Sort column (name, status, created_at, stopped_at, idle_ttl_seconds,
+              delete_after_stop_seconds)
+
+          sort_direction: Deprecated: use sort_order. Sort direction (asc, desc)
+
+          sort_order: Sort direction (asc, desc)
+
+          status: Filter by status (provisioning, ready, failed, stopped, deleting)
+
+          tag_value_id: Filter by workspace resource tag value IDs; all must match
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._get_api_list(
+            "/api/v2/sandboxes/boxes",
+            page=SyncItemsCursorGetPagination[SandboxResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "created_by": created_by,
+                        "cursor": cursor,
+                        "label": label,
+                        "limit": limit,
+                        "name_contains": name_contains,
+                        "offset": offset,
+                        "page_size": page_size,
+                        "sort_by": sort_by,
+                        "sort_direction": sort_direction,
+                        "sort_order": sort_order,
+                        "status": status,
+                        "tag_value_id": tag_value_id,
+                    },
+                    box_list_params.BoxListParams,
+                ),
+            ),
+            model=SandboxResponse,
+        )
+
+    def delete(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Delete a sandbox by name or UUID.
+
+        Tears down the sandbox runtime and removes the
+        DB record.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return self._delete(
+            path_template("/api/v2/sandboxes/boxes/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+    def create_snapshot(
+        self,
+        path_name: str,
+        *,
+        body_name: str,
+        checkpoint: str | Omit = omit,
+        description: str | Omit = omit,
+        docker_image: str | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        include_memory: bool | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        run_config: box_create_snapshot_params.RunConfig | Omit = omit,
+        tag: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """
+        Create a snapshot by capturing the current state of a sandbox or promoting an
+        existing checkpoint.
+
+        Args:
+          checkpoint: if omitted, creates a fresh checkpoint from the running VM
+
+          description: Description says what this snapshot's image can do, so a caller can hand it to
+              an agent as a capability summary. At most 1024 characters.
+
+          docker_image: sandbox-local Docker image to export
+
+          fs_capacity_bytes: required for Docker image export unless the sandbox has a capacity
+
+          include_memory: IncludeMemory, when true, captures a full VM memory snapshot alongside the
+              filesystem clone. Only honored when the sandbox is running AND Checkpoint is
+              omitted (i.e. a fresh in-VM checkpoint is requested). Defaults to false to keep
+              snapshots small unless memory restore is explicitly desired.
+
+          labels: Labels seed the captured snapshot's labels.
+
+          run_config: RunConfig overrides the runtime configuration the snapshot carries: for a
+              docker_image export, the image's USER, WORKDIR and ENV; for a capture of the
+              running VM, the sandbox's own. user and work_dir replace, env_vars merge.
+
+          tag: mutable Docker-style tag; defaults to "latest"
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_name:
+            raise ValueError(f"Expected a non-empty value for `path_name` but received {path_name!r}")
+        return self._post(
+            path_template("/api/v2/sandboxes/boxes/{path_name}/snapshot", path_name=path_name),
+            body=maybe_transform(
+                {
+                    "body_name": body_name,
+                    "checkpoint": checkpoint,
+                    "description": description,
+                    "docker_image": docker_image,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "include_memory": include_memory,
+                    "labels": labels,
+                    "run_config": run_config,
+                    "tag": tag,
+                },
+                box_create_snapshot_params.BoxCreateSnapshotParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    def delete_service_url(
+        self,
+        name: str,
+        *,
+        port: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """
+        Removes the sharing grant for one port, or for every port when port is omitted.
+        A LangSmith login URL stops working immediately. A previously minted service
+        token is not revoked and stays valid until it expires, but no new one can be
+        issued from the removed grant.
+
+        Args:
+          port: Port to stop sharing. Omit to stop sharing every port.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return self._delete(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-urls", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform({"port": port}, box_delete_service_url_params.BoxDeleteServiceURLParams),
+            ),
+            cast_to=NoneType,
+        )
+
+    def generate_download_url(
+        self,
+        name: str,
+        *,
+        path: str,
+        content_disposition: str | Omit = omit,
+        content_type: str | Omit = omit,
+        csp_sandbox: bool | Omit = omit,
+        csp_sandbox_flags: List[
+            Literal[
+                "allow-downloads",
+                "allow-forms",
+                "allow-modals",
+                "allow-orientation-lock",
+                "allow-pointer-lock",
+                "allow-popups",
+                "allow-presentation",
+                "allow-scripts",
+                "allow-top-navigation-by-user-activation",
+                "allow-same-origin",
+            ]
+        ]
+        | Omit = omit,
+        csp_source_bundles: List[Literal["cdnjs", "google-fonts", "jsdelivr", "unpkg", "none", "any"]] | Omit = omit,
+        expires_in_seconds: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DownloadURLResponse:
+        """
+        Generate a tokenized link that downloads a single file from a sandbox with no
+        further authentication. This mints a token rather than creating an addressable
+        resource, so it returns 200 with no Location header. The token pins the sandbox,
+        the file path, the response content type and disposition, and the sandbox flags,
+        so a link cannot be repointed at another file or served under a weaker policy.
+        The file is always served with a Content-Security-Policy: a sandbox directive,
+        plus a default-src holding every fetch to the file's own download host and a set
+        of pre-approved third-party origins. csp_sandbox_flags may loosen the sandbox
+        with allow-downloads, allow-forms, allow-modals, allow-orientation-lock,
+        allow-pointer-lock, allow-popups, allow-presentation, allow-same-origin,
+        allow-scripts, or allow-top-navigation-by-user-activation. Every file is served
+        from its own host, derived from the sandbox and the path, so allow-same-origin
+        gives a page localStorage and IndexedDB that no other file can read, and
+        re-minting a link for the same file keeps them. csp_sandbox set to false drops
+        the sandbox directive altogether, and csp_sandbox_flags must then be omitted.
+        csp_source_bundles selects the third-party origins: cdnjs, google-fonts,
+        jsdelivr, and unpkg are all allowed when the field is omitted, 'none' holds the
+        file to its own host, and 'any' sends no default-src at all. Links never expire
+        unless expires_in_seconds is set. The link is served from the sandbox service
+        domain, not the API host.
+
+        Args:
+          csp_sandbox: CSPSandbox false serves the file with no CSP sandbox directive; omit to keep it.
+
+          csp_sandbox_flags: CSPSandboxFlags loosen the CSP sandbox the file is served under; omit for the
+              most restrictive policy.
+
+          csp_source_bundles: CSPSourceBundles allow the served file to fetch from named third-party origins;
+              omit to send no fetch directive.
+
+          expires_in_seconds: ExpiresInSeconds is optional; a link with no expiry never expires.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/download-url", name=name),
+            body=maybe_transform(
+                {
+                    "path": path,
+                    "content_disposition": content_disposition,
+                    "content_type": content_type,
+                    "csp_sandbox": csp_sandbox,
+                    "csp_sandbox_flags": csp_sandbox_flags,
+                    "csp_source_bundles": csp_source_bundles,
+                    "expires_in_seconds": expires_in_seconds,
+                },
+                box_generate_download_url_params.BoxGenerateDownloadURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DownloadURLResponse,
+        )
+
+    def generate_service_url(
+        self,
+        name: str,
+        *,
+        access: Literal["restricted", "workspace", "off"] | Omit = omit,
+        expires_in_seconds: int | Omit = omit,
+        port: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ServiceURLResponse:
+        """
+        Create a short-lived JWT for accessing an HTTP service running on a specific
+        port inside a sandbox. Returns a browser_url (sets auth cookie via redirect), a
+        service_url (for use with the X-Langsmith-Sandbox-Service-Token header), the raw
+        token, and its expiry. Set access=restricted|workspace to instead enable durable
+        LangSmith login (no token; users authenticate with their normal LangSmith
+        session), or access=off to disable it. LangSmith login and token access are
+        mutually exclusive per service URL.
+
+        Args:
+          access: Access selects the login mode, mutually exclusive with the minted token. Omit
+              the field for token mode: mint a short-lived service token (default).
+              "restricted" — LangSmith login: the sandbox's creator, or any user with
+              SandboxesExec on it (admins by default). "workspace" — LangSmith login: any
+              member of the owning workspace. "off" — remove an existing LangSmith login grant
+              and mint a token. A LangSmith login grant is durable; token mode is refused
+              (409) while one exists.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-url", name=name),
+            body=maybe_transform(
+                {
+                    "access": access,
+                    "expires_in_seconds": expires_in_seconds,
+                    "port": port,
+                },
+                box_generate_service_url_params.BoxGenerateServiceURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ServiceURLResponse,
+        )
+
+    def get_status(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxStatusResponse:
+        """
+        Retrieve the lightweight status of a sandbox for polling.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._get(
+            path_template("/api/v2/sandboxes/boxes/{name}/status", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxStatusResponse,
+        )
+
+    def list_service_urls(
+        self,
+        name: str,
+        *,
+        cursor: str | Omit = omit,
+        page_size: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SyncItemsCursorGetPagination[BoxListServiceURLsResponse]:
+        """
+        Returns one entry per port the sandbox is currently reachable on, so a caller
+        can see what is shared before turning it off. Expired token grants are omitted.
+        Cursors are opaque and only valid on this endpoint; do not parse or construct
+        one.
+
+        Args:
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          page_size: Number of results per page
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._get_api_list(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-urls", name=name),
+            page=SyncItemsCursorGetPagination[BoxListServiceURLsResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "cursor": cursor,
+                        "page_size": page_size,
+                    },
+                    box_list_service_urls_params.BoxListServiceURLsParams,
+                ),
+            ),
+            model=BoxListServiceURLsResponse,
+        )
+
+    def start(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Start a stopped or failed sandbox.
+
+        This endpoint is not idempotent.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/start", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    def stop(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Stop a ready sandbox.
+
+        This endpoint is not idempotent; the filesystem is
+        preserved for later restart.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/stop", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+
+class AsyncBoxesResource(AsyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> AsyncBoxesResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#accessing-raw-response-data-eg-headers
+        """
+        return AsyncBoxesResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncBoxesResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#with_streaming_response
+        """
+        return AsyncBoxesResourceWithStreamingResponse(self)
+
+    async def create(
+        self,
+        *,
+        access_delegation: box_create_params.AccessDelegation | Omit = omit,
+        cpu_millicores: int | Omit = omit,
+        delete_after_stop_seconds: int | Omit = omit,
+        env_vars: Dict[str, str] | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        idle_ttl_seconds: int | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        mem_bytes: int | Omit = omit,
+        mount_config: box_create_params.MountConfig | Omit = omit,
+        name: str | Omit = omit,
+        preserve_memory_on_stop: bool | Omit = omit,
+        proxy_config: box_create_params.ProxyConfig | Omit = omit,
+        restore_memory: bool | Omit = omit,
+        run_config: box_create_params.RunConfig | Omit = omit,
+        snapshot: str | Omit = omit,
+        snapshot_id: str | Omit = omit,
+        snapshot_name: str | Omit = omit,
+        tag_value_ids: SequenceNotStr[str] | Omit = omit,
+        vcpus: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Create a new sandbox from a snapshot.
+
+        Provide at most one of `snapshot_id` or
+        `snapshot_name`; if neither is provided, the server uses the default snapshot.
+        `snapshot_name` accepts a Docker-style `name` or `name:tag` reference (a bare
+        name resolves to `name:latest`).
+
+        Args:
+          access_delegation: AccessDelegation lets code inside the sandbox call the LangSmith API as you,
+              with at most the permissions granted here. Omit for no access.
+
+          cpu_millicores: CPUMillicores optionally requests CPU at millicore granularity (e.g. 500 = 0.5
+              vCPU); takes precedence over VCPUs. Fractional (sub-vCPU) values are not
+              available for every sandbox.
+
+          labels: Labels are free-form key/value metadata persisted with the sandbox and returned
+              on reads. Labels from the source snapshot are inherited unless overridden here.
+
+          mem_bytes: Memory for the sandbox, in bytes. Memory is tied to CPU at 4 GiB per vCPU: omit
+              it and it follows that ratio; set it and it must stay within 50% of the ratio
+              for the requested CPU, so a 1 vCPU sandbox accepts 2-6 GiB. Setting memory
+              without CPU derives the CPU from the same ratio. Maximum 64 GiB.
+
+          preserve_memory_on_stop: PreserveMemoryOnStop, when true, suspends the sandbox's memory on a voluntary
+              stop (idle timeout or explicit stop) so the next start resumes from where it
+              left off. Default false discards memory and keeps only the filesystem, so the
+              next start is a cold boot. Restarts triggered by infrastructure maintenance
+              always preserve memory regardless of this setting.
+
+          restore_memory:
+              RestoreMemory selects how the sandbox handles a snapshot's captured memory:
+
+              nil → if-present: resume from memory when the snapshot has it, else cold-boot
+              (default). true → always: resume from memory; rejected if the snapshot has none.
+              false → never: always cold-boot.
+
+              Applies to this request only.
+
+          run_config: RunConfig overrides the snapshot's run config for this sandbox: user and
+              work_dir replace the snapshot's, env_vars merge over it. The result is what the
+              sandbox boots with, and what a snapshot captured from it carries.
+
+          snapshot: Snapshot is a Docker-style name or name:tag reference to boot from. A bare name
+              resolves to name:latest.
+
+          snapshot_name: SnapshotName is a synonym for Snapshot, accepted for compatibility with clients
+              that predate it. Set one or the other.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/api/v2/sandboxes/boxes",
+            body=await async_maybe_transform(
+                {
+                    "access_delegation": access_delegation,
+                    "cpu_millicores": cpu_millicores,
+                    "delete_after_stop_seconds": delete_after_stop_seconds,
+                    "env_vars": env_vars,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "idle_ttl_seconds": idle_ttl_seconds,
+                    "labels": labels,
+                    "mem_bytes": mem_bytes,
+                    "mount_config": mount_config,
+                    "name": name,
+                    "preserve_memory_on_stop": preserve_memory_on_stop,
+                    "proxy_config": proxy_config,
+                    "restore_memory": restore_memory,
+                    "run_config": run_config,
+                    "snapshot": snapshot,
+                    "snapshot_id": snapshot_id,
+                    "snapshot_name": snapshot_name,
+                    "tag_value_ids": tag_value_ids,
+                    "vcpus": vcpus,
+                },
+                box_create_params.BoxCreateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    async def retrieve(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Retrieve a sandbox by name.
+
+        Stale provisioning sandboxes are auto-failed.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._get(
+            path_template("/api/v2/sandboxes/boxes/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    async def update(
+        self,
+        path_name: str,
+        *,
+        cpu_millicores: int | Omit = omit,
+        delete_after_stop_seconds: int | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        idle_ttl_seconds: int | Omit = omit,
+        mem_bytes: int | Omit = omit,
+        body_name: str | Omit = omit,
+        proxy_config: box_update_params.ProxyConfig | Omit = omit,
+        run_config: box_update_params.RunConfig | Omit = omit,
+        tag_value_ids: SequenceNotStr[str] | Omit = omit,
+        vcpus: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """
+        Update a sandbox's display name, retention, resources, tags, or proxy
+        configuration. The name must be unique within the tenant. Proxy configuration
+        sent to a sandbox that is not running is stored and applied when it next starts.
+
+        Args:
+          mem_bytes: New memory for the sandbox, in bytes. The 4 GiB per vCPU ratio applies when the
+              sandbox is created; a resize enforces only the maximum of 64 GiB.
+
+          run_config: RunConfig changes what subsequent commands run with: user and work_dir replace
+              the current values, env_vars merge over them. Commands already running are
+              unaffected.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_name:
+            raise ValueError(f"Expected a non-empty value for `path_name` but received {path_name!r}")
+        return await self._patch(
+            path_template("/api/v2/sandboxes/boxes/{path_name}", path_name=path_name),
+            body=await async_maybe_transform(
+                {
+                    "cpu_millicores": cpu_millicores,
+                    "delete_after_stop_seconds": delete_after_stop_seconds,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "idle_ttl_seconds": idle_ttl_seconds,
+                    "mem_bytes": mem_bytes,
+                    "body_name": body_name,
+                    "proxy_config": proxy_config,
+                    "run_config": run_config,
+                    "tag_value_ids": tag_value_ids,
+                    "vcpus": vcpus,
+                },
+                box_update_params.BoxUpdateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    def list(
+        self,
+        *,
+        created_by: str | Omit = omit,
+        cursor: str | Omit = omit,
+        label: SequenceNotStr[str] | Omit = omit,
+        limit: int | Omit = omit,
+        name_contains: str | Omit = omit,
+        offset: int | Omit = omit,
+        page_size: int | Omit = omit,
+        sort_by: str | Omit = omit,
+        sort_direction: str | Omit = omit,
+        sort_order: str | Omit = omit,
+        status: str | Omit = omit,
+        tag_value_id: SequenceNotStr[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> AsyncPaginator[SandboxResponse, AsyncItemsCursorGetPagination[SandboxResponse]]:
+        """
+        List sandboxes for the authenticated tenant, with optional filtering, sorting,
+        and pagination. Page with page_size and cursor: replay the response's
+        next_cursor until it comes back null, which is the only signal that no pages
+        remain. Cursors are opaque and only valid on this endpoint; do not parse or
+        construct one.
+
+        Args:
+          created_by: Filter by creator identity. Only 'me' is supported.
+
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          label: Filter by label. Repeatable; all must match. Use 'key' to match on key presence
+              or 'key=value' for equality.
+
+          limit: Deprecated: use page_size. Maximum number of results
+
+          name_contains: Filter by name substring
+
+          offset: Deprecated: use cursor. Pagination offset
+
+          page_size: Number of results per page
+
+          sort_by: Sort column (name, status, created_at, stopped_at, idle_ttl_seconds,
+              delete_after_stop_seconds)
+
+          sort_direction: Deprecated: use sort_order. Sort direction (asc, desc)
+
+          sort_order: Sort direction (asc, desc)
+
+          status: Filter by status (provisioning, ready, failed, stopped, deleting)
+
+          tag_value_id: Filter by workspace resource tag value IDs; all must match
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._get_api_list(
+            "/api/v2/sandboxes/boxes",
+            page=AsyncItemsCursorGetPagination[SandboxResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "created_by": created_by,
+                        "cursor": cursor,
+                        "label": label,
+                        "limit": limit,
+                        "name_contains": name_contains,
+                        "offset": offset,
+                        "page_size": page_size,
+                        "sort_by": sort_by,
+                        "sort_direction": sort_direction,
+                        "sort_order": sort_order,
+                        "status": status,
+                        "tag_value_id": tag_value_id,
+                    },
+                    box_list_params.BoxListParams,
+                ),
+            ),
+            model=SandboxResponse,
+        )
+
+    async def delete(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Delete a sandbox by name or UUID.
+
+        Tears down the sandbox runtime and removes the
+        DB record.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return await self._delete(
+            path_template("/api/v2/sandboxes/boxes/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+    async def create_snapshot(
+        self,
+        path_name: str,
+        *,
+        body_name: str,
+        checkpoint: str | Omit = omit,
+        description: str | Omit = omit,
+        docker_image: str | Omit = omit,
+        fs_capacity_bytes: int | Omit = omit,
+        include_memory: bool | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        run_config: box_create_snapshot_params.RunConfig | Omit = omit,
+        tag: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """
+        Create a snapshot by capturing the current state of a sandbox or promoting an
+        existing checkpoint.
+
+        Args:
+          checkpoint: if omitted, creates a fresh checkpoint from the running VM
+
+          description: Description says what this snapshot's image can do, so a caller can hand it to
+              an agent as a capability summary. At most 1024 characters.
+
+          docker_image: sandbox-local Docker image to export
+
+          fs_capacity_bytes: required for Docker image export unless the sandbox has a capacity
+
+          include_memory: IncludeMemory, when true, captures a full VM memory snapshot alongside the
+              filesystem clone. Only honored when the sandbox is running AND Checkpoint is
+              omitted (i.e. a fresh in-VM checkpoint is requested). Defaults to false to keep
+              snapshots small unless memory restore is explicitly desired.
+
+          labels: Labels seed the captured snapshot's labels.
+
+          run_config: RunConfig overrides the runtime configuration the snapshot carries: for a
+              docker_image export, the image's USER, WORKDIR and ENV; for a capture of the
+              running VM, the sandbox's own. user and work_dir replace, env_vars merge.
+
+          tag: mutable Docker-style tag; defaults to "latest"
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_name:
+            raise ValueError(f"Expected a non-empty value for `path_name` but received {path_name!r}")
+        return await self._post(
+            path_template("/api/v2/sandboxes/boxes/{path_name}/snapshot", path_name=path_name),
+            body=await async_maybe_transform(
+                {
+                    "body_name": body_name,
+                    "checkpoint": checkpoint,
+                    "description": description,
+                    "docker_image": docker_image,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "include_memory": include_memory,
+                    "labels": labels,
+                    "run_config": run_config,
+                    "tag": tag,
+                },
+                box_create_snapshot_params.BoxCreateSnapshotParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    async def delete_service_url(
+        self,
+        name: str,
+        *,
+        port: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """
+        Removes the sharing grant for one port, or for every port when port is omitted.
+        A LangSmith login URL stops working immediately. A previously minted service
+        token is not revoked and stays valid until it expires, but no new one can be
+        issued from the removed grant.
+
+        Args:
+          port: Port to stop sharing. Omit to stop sharing every port.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return await self._delete(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-urls", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {"port": port}, box_delete_service_url_params.BoxDeleteServiceURLParams
+                ),
+            ),
+            cast_to=NoneType,
+        )
+
+    async def generate_download_url(
+        self,
+        name: str,
+        *,
+        path: str,
+        content_disposition: str | Omit = omit,
+        content_type: str | Omit = omit,
+        csp_sandbox: bool | Omit = omit,
+        csp_sandbox_flags: List[
+            Literal[
+                "allow-downloads",
+                "allow-forms",
+                "allow-modals",
+                "allow-orientation-lock",
+                "allow-pointer-lock",
+                "allow-popups",
+                "allow-presentation",
+                "allow-scripts",
+                "allow-top-navigation-by-user-activation",
+                "allow-same-origin",
+            ]
+        ]
+        | Omit = omit,
+        csp_source_bundles: List[Literal["cdnjs", "google-fonts", "jsdelivr", "unpkg", "none", "any"]] | Omit = omit,
+        expires_in_seconds: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DownloadURLResponse:
+        """
+        Generate a tokenized link that downloads a single file from a sandbox with no
+        further authentication. This mints a token rather than creating an addressable
+        resource, so it returns 200 with no Location header. The token pins the sandbox,
+        the file path, the response content type and disposition, and the sandbox flags,
+        so a link cannot be repointed at another file or served under a weaker policy.
+        The file is always served with a Content-Security-Policy: a sandbox directive,
+        plus a default-src holding every fetch to the file's own download host and a set
+        of pre-approved third-party origins. csp_sandbox_flags may loosen the sandbox
+        with allow-downloads, allow-forms, allow-modals, allow-orientation-lock,
+        allow-pointer-lock, allow-popups, allow-presentation, allow-same-origin,
+        allow-scripts, or allow-top-navigation-by-user-activation. Every file is served
+        from its own host, derived from the sandbox and the path, so allow-same-origin
+        gives a page localStorage and IndexedDB that no other file can read, and
+        re-minting a link for the same file keeps them. csp_sandbox set to false drops
+        the sandbox directive altogether, and csp_sandbox_flags must then be omitted.
+        csp_source_bundles selects the third-party origins: cdnjs, google-fonts,
+        jsdelivr, and unpkg are all allowed when the field is omitted, 'none' holds the
+        file to its own host, and 'any' sends no default-src at all. Links never expire
+        unless expires_in_seconds is set. The link is served from the sandbox service
+        domain, not the API host.
+
+        Args:
+          csp_sandbox: CSPSandbox false serves the file with no CSP sandbox directive; omit to keep it.
+
+          csp_sandbox_flags: CSPSandboxFlags loosen the CSP sandbox the file is served under; omit for the
+              most restrictive policy.
+
+          csp_source_bundles: CSPSourceBundles allow the served file to fetch from named third-party origins;
+              omit to send no fetch directive.
+
+          expires_in_seconds: ExpiresInSeconds is optional; a link with no expiry never expires.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/download-url", name=name),
+            body=await async_maybe_transform(
+                {
+                    "path": path,
+                    "content_disposition": content_disposition,
+                    "content_type": content_type,
+                    "csp_sandbox": csp_sandbox,
+                    "csp_sandbox_flags": csp_sandbox_flags,
+                    "csp_source_bundles": csp_source_bundles,
+                    "expires_in_seconds": expires_in_seconds,
+                },
+                box_generate_download_url_params.BoxGenerateDownloadURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DownloadURLResponse,
+        )
+
+    async def generate_service_url(
+        self,
+        name: str,
+        *,
+        access: Literal["restricted", "workspace", "off"] | Omit = omit,
+        expires_in_seconds: int | Omit = omit,
+        port: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ServiceURLResponse:
+        """
+        Create a short-lived JWT for accessing an HTTP service running on a specific
+        port inside a sandbox. Returns a browser_url (sets auth cookie via redirect), a
+        service_url (for use with the X-Langsmith-Sandbox-Service-Token header), the raw
+        token, and its expiry. Set access=restricted|workspace to instead enable durable
+        LangSmith login (no token; users authenticate with their normal LangSmith
+        session), or access=off to disable it. LangSmith login and token access are
+        mutually exclusive per service URL.
+
+        Args:
+          access: Access selects the login mode, mutually exclusive with the minted token. Omit
+              the field for token mode: mint a short-lived service token (default).
+              "restricted" — LangSmith login: the sandbox's creator, or any user with
+              SandboxesExec on it (admins by default). "workspace" — LangSmith login: any
+              member of the owning workspace. "off" — remove an existing LangSmith login grant
+              and mint a token. A LangSmith login grant is durable; token mode is refused
+              (409) while one exists.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-url", name=name),
+            body=await async_maybe_transform(
+                {
+                    "access": access,
+                    "expires_in_seconds": expires_in_seconds,
+                    "port": port,
+                },
+                box_generate_service_url_params.BoxGenerateServiceURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ServiceURLResponse,
+        )
+
+    async def get_status(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxStatusResponse:
+        """
+        Retrieve the lightweight status of a sandbox for polling.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._get(
+            path_template("/api/v2/sandboxes/boxes/{name}/status", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxStatusResponse,
+        )
+
+    def list_service_urls(
+        self,
+        name: str,
+        *,
+        cursor: str | Omit = omit,
+        page_size: int | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> AsyncPaginator[BoxListServiceURLsResponse, AsyncItemsCursorGetPagination[BoxListServiceURLsResponse]]:
+        """
+        Returns one entry per port the sandbox is currently reachable on, so a caller
+        can see what is shared before turning it off. Expired token grants are omitted.
+        Cursors are opaque and only valid on this endpoint; do not parse or construct
+        one.
+
+        Args:
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          page_size: Number of results per page
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._get_api_list(
+            path_template("/api/v2/sandboxes/boxes/{name}/service-urls", name=name),
+            page=AsyncItemsCursorGetPagination[BoxListServiceURLsResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "cursor": cursor,
+                        "page_size": page_size,
+                    },
+                    box_list_service_urls_params.BoxListServiceURLsParams,
+                ),
+            ),
+            model=BoxListServiceURLsResponse,
+        )
+
+    async def start(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SandboxResponse:
+        """Start a stopped or failed sandbox.
+
+        This endpoint is not idempotent.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/start", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SandboxResponse,
+        )
+
+    async def stop(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Stop a ready sandbox.
+
+        This endpoint is not idempotent; the filesystem is
+        preserved for later restart.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return await self._post(
+            path_template("/api/v2/sandboxes/boxes/{name}/stop", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+
+class BoxesResourceWithRawResponse:
+    def __init__(self, boxes: BoxesResource) -> None:
+        self._boxes = boxes
+
+        self.create = to_raw_response_wrapper(
+            boxes.create,
+        )
+        self.retrieve = to_raw_response_wrapper(
+            boxes.retrieve,
+        )
+        self.update = to_raw_response_wrapper(
+            boxes.update,
+        )
+        self.list = to_raw_response_wrapper(
+            boxes.list,
+        )
+        self.delete = to_raw_response_wrapper(
+            boxes.delete,
+        )
+        self.create_snapshot = to_raw_response_wrapper(
+            boxes.create_snapshot,
+        )
+        self.delete_service_url = to_raw_response_wrapper(
+            boxes.delete_service_url,
+        )
+        self.generate_download_url = to_raw_response_wrapper(
+            boxes.generate_download_url,
+        )
+        self.generate_service_url = to_raw_response_wrapper(
+            boxes.generate_service_url,
+        )
+        self.get_status = to_raw_response_wrapper(
+            boxes.get_status,
+        )
+        self.list_service_urls = to_raw_response_wrapper(
+            boxes.list_service_urls,
+        )
+        self.start = to_raw_response_wrapper(
+            boxes.start,
+        )
+        self.stop = to_raw_response_wrapper(
+            boxes.stop,
+        )
+
+
+class AsyncBoxesResourceWithRawResponse:
+    def __init__(self, boxes: AsyncBoxesResource) -> None:
+        self._boxes = boxes
+
+        self.create = async_to_raw_response_wrapper(
+            boxes.create,
+        )
+        self.retrieve = async_to_raw_response_wrapper(
+            boxes.retrieve,
+        )
+        self.update = async_to_raw_response_wrapper(
+            boxes.update,
+        )
+        self.list = async_to_raw_response_wrapper(
+            boxes.list,
+        )
+        self.delete = async_to_raw_response_wrapper(
+            boxes.delete,
+        )
+        self.create_snapshot = async_to_raw_response_wrapper(
+            boxes.create_snapshot,
+        )
+        self.delete_service_url = async_to_raw_response_wrapper(
+            boxes.delete_service_url,
+        )
+        self.generate_download_url = async_to_raw_response_wrapper(
+            boxes.generate_download_url,
+        )
+        self.generate_service_url = async_to_raw_response_wrapper(
+            boxes.generate_service_url,
+        )
+        self.get_status = async_to_raw_response_wrapper(
+            boxes.get_status,
+        )
+        self.list_service_urls = async_to_raw_response_wrapper(
+            boxes.list_service_urls,
+        )
+        self.start = async_to_raw_response_wrapper(
+            boxes.start,
+        )
+        self.stop = async_to_raw_response_wrapper(
+            boxes.stop,
+        )
+
+
+class BoxesResourceWithStreamingResponse:
+    def __init__(self, boxes: BoxesResource) -> None:
+        self._boxes = boxes
+
+        self.create = to_streamed_response_wrapper(
+            boxes.create,
+        )
+        self.retrieve = to_streamed_response_wrapper(
+            boxes.retrieve,
+        )
+        self.update = to_streamed_response_wrapper(
+            boxes.update,
+        )
+        self.list = to_streamed_response_wrapper(
+            boxes.list,
+        )
+        self.delete = to_streamed_response_wrapper(
+            boxes.delete,
+        )
+        self.create_snapshot = to_streamed_response_wrapper(
+            boxes.create_snapshot,
+        )
+        self.delete_service_url = to_streamed_response_wrapper(
+            boxes.delete_service_url,
+        )
+        self.generate_download_url = to_streamed_response_wrapper(
+            boxes.generate_download_url,
+        )
+        self.generate_service_url = to_streamed_response_wrapper(
+            boxes.generate_service_url,
+        )
+        self.get_status = to_streamed_response_wrapper(
+            boxes.get_status,
+        )
+        self.list_service_urls = to_streamed_response_wrapper(
+            boxes.list_service_urls,
+        )
+        self.start = to_streamed_response_wrapper(
+            boxes.start,
+        )
+        self.stop = to_streamed_response_wrapper(
+            boxes.stop,
+        )
+
+
+class AsyncBoxesResourceWithStreamingResponse:
+    def __init__(self, boxes: AsyncBoxesResource) -> None:
+        self._boxes = boxes
+
+        self.create = async_to_streamed_response_wrapper(
+            boxes.create,
+        )
+        self.retrieve = async_to_streamed_response_wrapper(
+            boxes.retrieve,
+        )
+        self.update = async_to_streamed_response_wrapper(
+            boxes.update,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            boxes.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
+            boxes.delete,
+        )
+        self.create_snapshot = async_to_streamed_response_wrapper(
+            boxes.create_snapshot,
+        )
+        self.delete_service_url = async_to_streamed_response_wrapper(
+            boxes.delete_service_url,
+        )
+        self.generate_download_url = async_to_streamed_response_wrapper(
+            boxes.generate_download_url,
+        )
+        self.generate_service_url = async_to_streamed_response_wrapper(
+            boxes.generate_service_url,
+        )
+        self.get_status = async_to_streamed_response_wrapper(
+            boxes.get_status,
+        )
+        self.list_service_urls = async_to_streamed_response_wrapper(
+            boxes.list_service_urls,
+        )
+        self.start = async_to_streamed_response_wrapper(
+            boxes.start,
+        )
+        self.stop = async_to_streamed_response_wrapper(
+            boxes.stop,
+        )

@@ -1,0 +1,236 @@
+"""LangSmith Sandbox Module.
+
+This module provides sandboxed code execution capabilities through the
+LangSmith Sandbox API.
+
+Example:
+    from langsmith.sandbox import SandboxClient
+
+    # Uses LANGSMITH_ENDPOINT and LANGSMITH_API_KEY from environment
+    client = SandboxClient()
+
+    snapshot = client.create_snapshot(
+        docker_image="python:3.12-slim", name="python-snapshot"
+    )
+    with client.sandbox(snapshot_id=snapshot.id) as sb:
+        result = sb.run("python --version")
+        print(result.stdout)
+
+    # Or async:
+    from langsmith.sandbox import AsyncSandboxClient
+
+    async with AsyncSandboxClient() as client:
+        snapshot = await client.create_snapshot(
+            docker_image="python:3.12-slim", name="python-snapshot"
+        )
+        async with await client.sandbox(snapshot_id=snapshot.id) as sb:
+            result = await sb.run("python --version")
+            print(result.stdout)
+"""
+
+from langsmith.sandbox._access_delegation import (
+    AccessDelegation,
+    AccessDelegationMode,
+)
+from langsmith.sandbox._async_client import AsyncSandboxClient
+from langsmith.sandbox._async_sandbox import AsyncSandbox
+from langsmith.sandbox._client import SandboxClient
+from langsmith.sandbox._exceptions import (
+    CommandTimeoutError,
+    DataplaneNotConfiguredError,
+    QuotaExceededError,
+    ResourceAlreadyExistsError,
+    ResourceCreationError,
+    ResourceInUseError,
+    ResourceNameConflictError,
+    ResourceNotFoundError,
+    ResourceTimeoutError,
+    SandboxAPIError,
+    SandboxAuthenticationError,
+    SandboxClientError,
+    SandboxConnectionError,
+    SandboxConnectTimeoutError,
+    SandboxNotReadyError,
+    SandboxOperationError,
+    SandboxRetryableConnectionError,
+    SandboxServerReloadError,
+    TunnelConnectionRefusedError,
+    TunnelError,
+    TunnelPortNotAllowedError,
+    TunnelUnsupportedVersionError,
+    ValidationError,
+)
+from langsmith.sandbox._models import (
+    AsyncCommandHandle,
+    AsyncServiceURL,
+    CommandHandle,
+    DownloadContentDisposition,
+    DownloadURL,
+    ExecutionResult,
+    FileChunk,
+    FileInfo,
+    FileStat,
+    GlobResult,
+    GrepMatch,
+    GrepResult,
+    OutputChunk,
+    ResourceStatus,
+    RunConfig,
+    ServiceAccess,
+    ServiceLoginURL,
+    ServiceURL,
+    Snapshot,
+    SnapshotTag,
+)
+from langsmith.sandbox._mounts import (
+    AWSMountAuthConfig,
+    AWSMountRoleAuthConfig,
+    ContextHubMountConfig,
+    ContextHubMountSpec,
+    GCPMountAuthConfig,
+    GCSMountConfig,
+    GCSMountSpec,
+    GitMountConfig,
+    GitMountRefSpec,
+    GitMountSpec,
+    MountCacheConfig,
+    MountEncryptionConfig,
+    S3MountConfig,
+    S3MountSpec,
+    SandboxMount,
+    SandboxMountAuth,
+    SandboxMountAuthConfig,
+    SandboxMountConfig,
+    context_hub_mount,
+    gcs_mount,
+    git_mount,
+    mount_config,
+    s3_mount,
+)
+from langsmith.sandbox._proxy_config import (
+    SandboxProxyConfig,
+    SandboxProxyRule,
+    SandboxProxySecret,
+    aws_auth,
+    gcp_auth,
+    opaque_secret,
+    proxy_config,
+    workspace_secret,
+)
+from langsmith.sandbox._sandbox import Sandbox
+from langsmith.sandbox._tunnel import AsyncTunnel, Tunnel
+from langsmith.sandbox._verify import (
+    CALLBACK_SIGNATURE_HEADER,
+    USER_TOKEN_HEADER,
+    AudienceMatcher,
+    SandboxCallback,
+    SandboxCallbackIdentity,
+    SandboxCallbackRequest,
+    SandboxTokenVerificationError,
+    SandboxTokenVerifier,
+    SandboxUser,
+)
+
+__all__ = [
+    # Main classes
+    "SandboxClient",
+    "AsyncSandboxClient",
+    "Sandbox",
+    "AsyncSandbox",
+    # Token and callback verification
+    "SandboxTokenVerifier",
+    "SandboxTokenVerificationError",
+    "AudienceMatcher",
+    "SandboxUser",
+    "SandboxCallback",
+    "SandboxCallbackIdentity",
+    "SandboxCallbackRequest",
+    "USER_TOKEN_HEADER",
+    "CALLBACK_SIGNATURE_HEADER",
+    # Models
+    "ResourceStatus",
+    "ExecutionResult",
+    "RunConfig",
+    "Snapshot",
+    "SnapshotTag",
+    # Filesystem models
+    "FileChunk",
+    "FileInfo",
+    "FileStat",
+    "GlobResult",
+    "GrepMatch",
+    "GrepResult",
+    "ServiceAccess",
+    "ServiceLoginURL",
+    "ServiceURL",
+    "DownloadURL",
+    "DownloadContentDisposition",
+    "AsyncServiceURL",
+    # WebSocket streaming models
+    "CommandHandle",
+    "AsyncCommandHandle",
+    "OutputChunk",
+    "AccessDelegation",
+    "AccessDelegationMode",
+    "SandboxProxyConfig",
+    "SandboxProxyRule",
+    "SandboxProxySecret",
+    "SandboxMount",
+    "SandboxMountAuth",
+    "SandboxMountAuthConfig",
+    "SandboxMountConfig",
+    "AWSMountAuthConfig",
+    "AWSMountRoleAuthConfig",
+    "ContextHubMountConfig",
+    "ContextHubMountSpec",
+    "GCPMountAuthConfig",
+    "MountCacheConfig",
+    "MountEncryptionConfig",
+    "GCSMountConfig",
+    "GCSMountSpec",
+    "GitMountConfig",
+    "GitMountRefSpec",
+    "GitMountSpec",
+    "S3MountConfig",
+    "S3MountSpec",
+    "aws_auth",
+    "context_hub_mount",
+    "git_mount",
+    "gcp_auth",
+    "gcs_mount",
+    "mount_config",
+    "opaque_secret",
+    "proxy_config",
+    "s3_mount",
+    "workspace_secret",
+    # Base and connection errors
+    "SandboxClientError",
+    "SandboxAPIError",
+    "SandboxAuthenticationError",
+    "SandboxConnectionError",
+    "SandboxRetryableConnectionError",
+    "SandboxConnectTimeoutError",
+    "SandboxServerReloadError",
+    # Resource errors (type-based with resource_type attribute)
+    "ResourceCreationError",
+    "ResourceNotFoundError",
+    "ResourceTimeoutError",
+    "ResourceInUseError",
+    "ResourceAlreadyExistsError",
+    "ResourceNameConflictError",
+    # Validation and quota errors
+    "ValidationError",
+    "QuotaExceededError",
+    # Sandbox-specific errors
+    "SandboxNotReadyError",
+    "SandboxOperationError",
+    "CommandTimeoutError",
+    "DataplaneNotConfiguredError",
+    # Tunnel
+    "Tunnel",
+    "AsyncTunnel",
+    "TunnelError",
+    "TunnelPortNotAllowedError",
+    "TunnelConnectionRefusedError",
+    "TunnelUnsupportedVersionError",
+]

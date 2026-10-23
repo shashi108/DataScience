@@ -1,0 +1,1195 @@
+Metadata-Version: 2.3
+Name: langsmith
+Version: 0.14.11
+Summary: Client library to connect to the LangSmith Observability and Evaluation Platform.
+Project-URL: Homepage, https://github.com/langchain-ai/langsmith-python
+Project-URL: Repository, https://github.com/langchain-ai/langsmith-python
+Author: LangChain
+License: MIT
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.10
+Requires-Dist: anyio<5,>=3.5.0
+Requires-Dist: distro<2,>=1.7.0
+Requires-Dist: httpx2<3,>=2
+Requires-Dist: orjson>=3.9.14; platform_python_implementation != 'PyPy'
+Requires-Dist: packaging>=23.2
+Requires-Dist: pydantic<3,>=2
+Requires-Dist: requests-toolbelt>=1.0.0
+Requires-Dist: requests>=2.0.0
+Requires-Dist: sniffio
+Requires-Dist: typing-extensions<5,>=4.14
+Requires-Dist: uuid-utils<1.0,>=0.12.0
+Requires-Dist: websockets>=15.0
+Requires-Dist: xxhash>=3.0.0
+Requires-Dist: zstandard>=0.23.0
+Provides-Extra: aiohttp
+Requires-Dist: aiohttp<4,>=3.14.3; extra == 'aiohttp'
+Requires-Dist: httpx-aiohttp>=0.1.9; extra == 'aiohttp'
+Provides-Extra: claude-agent-sdk
+Requires-Dist: claude-agent-sdk>=0.1.0; (python_version >= '3.10') and extra == 'claude-agent-sdk'
+Provides-Extra: gemini-live
+Requires-Dist: google-genai>=1.75; extra == 'gemini-live'
+Provides-Extra: google-adk
+Requires-Dist: google-adk>=1.0.0; extra == 'google-adk'
+Requires-Dist: wrapt>=1.16.0; extra == 'google-adk'
+Provides-Extra: google-adk-live
+Requires-Dist: google-adk>=2.3.0; extra == 'google-adk-live'
+Provides-Extra: langsmith-pyo3
+Requires-Dist: langsmith-pyo3>=0.1.0rc2; extra == 'langsmith-pyo3'
+Provides-Extra: livekit
+Requires-Dist: cachetools>=5.0.0; extra == 'livekit'
+Requires-Dist: livekit-agents>=1.6; extra == 'livekit'
+Requires-Dist: opentelemetry-api>=1.30.0; extra == 'livekit'
+Requires-Dist: opentelemetry-exporter-otlp-proto-http>=1.30.0; extra == 'livekit'
+Requires-Dist: opentelemetry-sdk>=1.30.0; extra == 'livekit'
+Provides-Extra: openai-agents
+Requires-Dist: openai-agents>=0.0.3; extra == 'openai-agents'
+Provides-Extra: openai-realtime
+Requires-Dist: openai-agents>=0.0.3; extra == 'openai-realtime'
+Requires-Dist: openai>=1.50; extra == 'openai-realtime'
+Provides-Extra: otel
+Requires-Dist: opentelemetry-api>=1.30.0; extra == 'otel'
+Requires-Dist: opentelemetry-exporter-otlp-proto-http>=1.30.0; extra == 'otel'
+Requires-Dist: opentelemetry-sdk>=1.30.0; extra == 'otel'
+Provides-Extra: pipecat
+Requires-Dist: cachetools>=5.0.0; extra == 'pipecat'
+Requires-Dist: opentelemetry-api>=1.30.0; extra == 'pipecat'
+Requires-Dist: opentelemetry-exporter-otlp-proto-http>=1.30.0; extra == 'pipecat'
+Requires-Dist: opentelemetry-sdk>=1.30.0; extra == 'pipecat'
+Requires-Dist: pipecat-ai>=1.0; (python_version >= '3.11') and extra == 'pipecat'
+Provides-Extra: pytest
+Requires-Dist: pytest>=7.0.0; extra == 'pytest'
+Requires-Dist: rich>=13.9.4; extra == 'pytest'
+Requires-Dist: vcrpy>=7.0.0; extra == 'pytest'
+Provides-Extra: sandbox
+Provides-Extra: sandbox-auth
+Requires-Dist: pyjwt[crypto]>=2.8.0; extra == 'sandbox-auth'
+Provides-Extra: strands-agents
+Requires-Dist: opentelemetry-api>=1.30.0; extra == 'strands-agents'
+Requires-Dist: opentelemetry-exporter-otlp-proto-http>=1.30.0; extra == 'strands-agents'
+Requires-Dist: opentelemetry-sdk>=1.30.0; extra == 'strands-agents'
+Requires-Dist: strands-agents-tools>=0.2.0; extra == 'strands-agents'
+Requires-Dist: strands-agents>=0.1.0; extra == 'strands-agents'
+Provides-Extra: vcr
+Requires-Dist: vcrpy>=7.0.0; extra == 'vcr'
+Description-Content-Type: text/markdown
+
+# LangSmith Client SDK
+
+[![Release Notes](https://img.shields.io/github/release/langchain-ai/langsmith-python?logo=python)](https://github.com/langchain-ai/langsmith-python/releases)
+[![Python Downloads](https://img.shields.io/pypi/dm/langsmith)](https://pypi.org/project/langsmith/)
+
+This package contains the Python client for interacting with the [LangSmith platform](https://smith.langchain.com/).
+
+To install:
+
+```bash
+pip install -U langsmith
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY=ls_...
+```
+
+Then trace:
+
+```python
+import openai
+from langsmith.wrappers import wrap_openai
+from langsmith import traceable
+
+# Auto-trace LLM calls in-context
+client = wrap_openai(openai.Client())
+
+
+@traceable  # Auto-trace this function
+def pipeline(user_input: str):
+    result = client.chat.completions.create(messages=[{"role": "user", "content": user_input}], model="gpt-5.4")
+    return result.choices[0].message.content
+
+
+pipeline("Hello, world!")
+```
+
+Every LLM call inside `pipeline` is nested under a single trace in the LangSmith UI.
+
+LangSmith helps you and your team develop and evaluate language models and intelligent agents. It is compatible with any LLM application.
+
+> **Cookbook:** For tutorials on how to get more value out of LangSmith, check out the [Langsmith Cookbook](https://github.com/langchain-ai/langsmith-cookbook/tree/main) repo.
+
+A typical workflow looks like:
+
+1. Set up an account with LangSmith.
+2. Log traces while debugging and prototyping.
+3. Run benchmark evaluations and continuously improve with the collected data.
+
+We'll walk through these steps in more detail below.
+
+## Sandbox AWS Auth Proxy
+
+When sandbox code needs to call AWS services, use the sandbox AWS auth proxy.
+The proxy keeps the real AWS credentials outside the sandbox and signs supported
+AWS HTTPS requests with SigV4, so code in the sandbox can use AWS SDKs normally
+without storing long-lived AWS keys in files, environment variables, shell
+history, or logs.
+
+Store AWS credentials as LangSmith workspace secrets using names that make sense
+for your workspace. Then create the sandbox with an AWS auth proxy config:
+
+```python
+from langsmith.sandbox import (
+    SandboxClient,
+    aws_auth,
+    proxy_config,
+    workspace_secret,
+)
+
+client = SandboxClient()
+auth_config = proxy_config(
+    rules=[
+        aws_auth(
+            access_key_id=workspace_secret("SANDBOX_AWS_ACCESS_KEY_ID"),
+            secret_access_key=workspace_secret("SANDBOX_AWS_SECRET_ACCESS_KEY"),
+        )
+    ],
+)
+
+with client.sandbox(
+    name="aws-sandbox",
+    proxy_config=auth_config,
+) as sandbox:
+    result = sandbox.run("python your_aws_script.py")
+    print(result.stdout)
+```
+
+Use `opaque_secret("...")` instead of `workspace_secret(...)` when your
+application needs to pass short-lived write-only AWS credentials at sandbox
+creation time. Plaintext AWS credential values are not accepted directly; wrap
+them as `opaque_secret(...)` values.
+
+## Sandbox GCP Auth Proxy
+
+When sandbox code needs to call Google APIs, use the sandbox GCP auth proxy.
+The proxy keeps the service account JSON outside the sandbox and injects OAuth
+bearer tokens for Google API hosts matched automatically by the sandbox proxy.
+
+Store the service account JSON as a LangSmith workspace secret. Then create the
+sandbox with a GCP auth proxy config:
+
+```python
+from langsmith.sandbox import (
+    SandboxClient,
+    gcp_auth,
+    proxy_config,
+    workspace_secret,
+)
+
+client = SandboxClient()
+auth_config = proxy_config(
+    rules=[
+        gcp_auth(
+            service_account_json=workspace_secret("SANDBOX_GCP_SERVICE_ACCOUNT_JSON"),
+            scopes=["https://www.googleapis.com/auth/devstorage.read_write"],
+        )
+    ],
+)
+
+with client.sandbox(
+    name="gcp-sandbox",
+    proxy_config=auth_config,
+) as sandbox:
+    result = sandbox.run("python your_gcp_script.py")
+    print(result.stdout)
+```
+
+Use `opaque_secret("...")` for short-lived write-only service account JSON.
+Plaintext service account JSON is not accepted directly.
+
+## Sandbox Mounts
+
+When you create a LangSmith sandbox that needs filesystem access to external
+data such as object storage buckets or public Git repositories, pass a
+`mount_config` on sandbox creation. Mount specs contain only the mount target.
+Provider credentials stay in `mount_config.auth`; the backend expands them into
+runtime proxy auth rules. You can also pass `proxy_config` for non-mount proxy
+behavior such as custom headers, callbacks, access control, and generic egress
+rules. Explicit AWS/GCP proxy auth rules conflict with `mount_config` auth for
+the same provider.
+
+S3 mounts require AWS auth:
+
+```python
+from langsmith.sandbox import (
+    aws_auth,
+    mount_config,
+    s3_mount,
+    workspace_secret,
+)
+
+mount_cfg = mount_config(
+    auth=[
+        aws_auth(
+            access_key_id=workspace_secret("SANDBOX_AWS_ACCESS_KEY_ID"),
+            secret_access_key=workspace_secret("SANDBOX_AWS_SECRET_ACCESS_KEY"),
+        )
+    ],
+    mounts=[
+        s3_mount(
+            id="customer_data",
+            mount_path="/mnt/mounts/customer-data",
+            bucket="example-bucket",
+            prefix="datasets/customer-data",
+            region="us-east-1",
+            endpoint_url="https://s3.amazonaws.com",
+            path_style=False,
+            read_only=False,
+        )
+    ],
+)
+
+with client.sandbox(
+    name="s3-mount-sandbox",
+    mount_config=mount_cfg,
+) as sandbox:
+    result = sandbox.run("ls /mnt/mounts/customer-data")
+    print(result.stdout)
+```
+
+GCS mounts require GCP auth:
+
+```python
+from langsmith.sandbox import (
+    gcp_auth,
+    gcs_mount,
+    mount_config,
+    workspace_secret,
+)
+
+mount_cfg = mount_config(
+    auth=[gcp_auth(service_account_json=workspace_secret("SANDBOX_GCP_SERVICE_ACCOUNT_JSON"))],
+    mounts=[
+        gcs_mount(
+            id="customer_data",
+            mount_path="/mnt/mounts/customer-data",
+            bucket="example-bucket",
+            prefix="datasets/customer-data",
+        )
+    ],
+)
+
+with client.sandbox(
+    name="gcs-mount-sandbox",
+    mount_config=mount_cfg,
+) as sandbox:
+    result = sandbox.run("ls /mnt/mounts/customer-data")
+    print(result.stdout)
+```
+
+Public Git mounts do not require AWS or GCP auth:
+
+```python
+from langsmith.sandbox import git_mount, mount_config
+
+mount_cfg = mount_config(
+    mounts=[
+        git_mount(
+            id="repo",
+            mount_path="/mnt/repo",
+            remote_url="https://github.com/langchain-ai/langsmith-python.git",
+            ref={"type": "branch", "name": "main"},
+            refresh_interval_seconds=60,
+        )
+    ],
+)
+
+with client.sandbox(
+    name="git-mount-sandbox",
+    mount_config=mount_cfg,
+) as sandbox:
+    result = sandbox.run("ls /mnt/repo")
+    print(result.stdout)
+```
+
+Private Git repositories can use low-level `proxy_config` rules when the remote
+requires proxy-managed auth. There is not yet a high-level private Git auth
+helper.
+
+## 1. Connect to LangSmith
+
+Sign up for [LangSmith](https://smith.langchain.com/) using your GitHub, Discord accounts, or an email address and password. If you sign up with an email, make sure to verify your email address before logging in.
+
+Then, create a unique API key on the [Settings Page](https://smith.langchain.com/settings), which is found in the menu at the top right corner of the page.
+
+> [!NOTE]
+> Save the API Key in a secure location. It will not be shown again.
+
+## 2. Log Traces
+
+You can log traces natively using the LangSmith SDK or within your LangChain application.
+
+### Logging Traces with LangChain
+
+LangSmith seamlessly integrates with the Python LangChain library to record traces from your LLM applications.
+
+1. **Copy the environment variables from the Settings Page and add them to your application.**
+
+Tracing can be activated by setting the following environment variables or by manually specifying the LangChainTracer.
+
+```python
+import os
+
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_ENDPOINT"] = "https://api.smith.langchain.com"
+# os.environ["LANGSMITH_ENDPOINT"] = "https://eu.api.smith.langchain.com" # If signed up in the EU region
+os.environ["LANGSMITH_API_KEY"] = "<YOUR-LANGSMITH-API-KEY>"
+# os.environ["LANGSMITH_PROJECT"] = "My Project Name" # Optional: "default" is used if not set
+# os.environ["LANGSMITH_WORKSPACE_ID"] = "<YOUR-WORKSPACE-ID>" # Required for org-scoped API keys
+```
+
+> **Tip:** Projects are groups of traces. All runs are logged to a project. If not specified, the project is set to `default`.
+
+2. **Run an Agent, Chain, or Language Model in LangChain**
+
+If the environment variables are correctly set, your application will automatically connect to the LangSmith platform.
+
+```python
+from langchain_core.runnables import chain
+
+
+@chain
+def add_val(x: dict) -> dict:
+    return {"val": x["val"] + 1}
+
+
+add_val({"val": 1})
+```
+
+### Logging Traces Outside LangChain
+
+You can still use the LangSmith development platform without depending on any
+LangChain code.
+
+1. **Copy the environment variables from the Settings Page and add them to your application.**
+
+```python
+import os
+
+os.environ["LANGSMITH_ENDPOINT"] = "https://api.smith.langchain.com"
+os.environ["LANGSMITH_API_KEY"] = "<YOUR-LANGSMITH-API-KEY>"
+# os.environ["LANGSMITH_PROJECT"] = "My Project Name" # Optional: "default" is used if not set
+```
+
+2. **Log traces**
+
+The easiest way to log traces using the SDK is via the `@traceable` decorator. Below is an example.
+
+```python
+from datetime import datetime
+from typing import List, Optional, Tuple
+
+import openai
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
+
+client = wrap_openai(openai.Client())
+
+
+@traceable
+def argument_generator(query: str, additional_description: str = "") -> str:
+    return (
+        client.chat.completions.create(
+            model="gpt-5.4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a debater making an argument on a topic."
+                    f"{additional_description}"
+                    f" The current time is {datetime.now()}",
+                },
+                {"role": "user", "content": f"The discussion topic is {query}"},
+            ],
+        )
+        .choices[0]
+        .message.content
+    )
+
+
+@traceable
+def argument_chain(query: str, additional_description: str = "") -> str:
+    argument = argument_generator(query, additional_description)
+    # ... Do other processing or call other functions...
+    return argument
+
+
+argument_chain("Why is blue better than orange?")
+```
+
+Alternatively, you can manually log events using the `Client` directly or using a `RunTree`, which is what the traceable decorator is meant to manage for you!
+
+A RunTree tracks your application. Each RunTree object is required to have a `name` and `run_type`. These and other important attributes are as follows:
+
+- `name`: `str` - used to identify the component's purpose
+- `run_type`: `str` - Currently one of "llm", "chain" or "tool"; more options will be added in the future
+- `inputs`: `dict` - the inputs to the component
+- `outputs`: `Optional[dict]` - the (optional) returned values from the component
+- `error`: `Optional[str]` - Any error messages that may have arisen during the call
+
+```python
+from langsmith.run_trees import RunTree
+
+parent_run = RunTree(
+    name="My Chat Bot",
+    run_type="chain",
+    inputs={"text": "Summarize this morning's meetings."},
+    # project_name= "Defaults to the LANGSMITH_PROJECT env var"
+)
+parent_run.post()
+# .. My Chat Bot calls an LLM
+child_llm_run = parent_run.create_child(
+    name="My Proprietary LLM",
+    run_type="llm",
+    inputs={"prompts": ["You are an AI Assistant. The time is XYZ. Summarize this morning's meetings."]},
+)
+child_llm_run.post()
+child_llm_run.end(
+    outputs={"generations": ["I should use the transcript_loader tool to fetch meeting_transcripts from XYZ"]}
+)
+child_llm_run.patch()
+# ..  My Chat Bot takes the LLM output and calls
+# a tool / function for fetching transcripts ..
+child_tool_run = parent_run.create_child(
+    name="transcript_loader",
+    run_type="tool",
+    inputs={"date": "XYZ", "content_type": "meeting_transcripts"},
+)
+child_tool_run.post()
+# The tool returns meeting notes to the chat bot
+child_tool_run.end(outputs={"meetings": ["Meeting1 notes.."]})
+child_tool_run.patch()
+
+child_chain_run = parent_run.create_child(
+    name="Unreliable Component",
+    run_type="tool",
+    inputs={"input": "Summarize these notes..."},
+)
+child_chain_run.post()
+
+try:
+    # .... the component does work
+    raise ValueError("Something went wrong")
+    child_chain_run.end(outputs={"output": "foo"})
+    child_chain_run.patch()
+except Exception as e:
+    child_chain_run.end(error=f"I errored again {e}")
+    child_chain_run.patch()
+    pass
+# .. The chat agent recovers
+
+parent_run.end(outputs={"output": ["The meeting notes are as follows:..."]})
+res = parent_run.patch()
+res.result()
+```
+
+## Create a Dataset from Existing Runs
+
+Once your runs are stored in LangSmith, you can convert them into a dataset.
+For this example, we will do so using the Client, but you can also do this using
+the web interface, as explained in the [LangSmith docs](https://docs.smith.langchain.com/).
+
+```python
+from langsmith import Client
+
+client = Client()
+dataset_name = "Example Dataset"
+# We will only use examples from the top level AgentExecutor run here,
+# and exclude runs that errored.
+runs = client.list_runs(
+    project_name="my_project",
+    execution_order=1,
+    error=False,
+)
+
+dataset = client.create_dataset(dataset_name, description="An example dataset")
+for run in runs:
+    client.create_example(
+        inputs=run.inputs,
+        outputs=run.outputs,
+        dataset_id=dataset.id,
+    )
+```
+
+## Evaluating Runs
+
+Check out the [LangSmith Testing & Evaluation dos](https://docs.smith.langchain.com/evaluation) for up-to-date workflows.
+
+For generating automated feedback on individual runs, you can run evaluations directly using the LangSmith client.
+
+```python
+from typing import Optional
+from langsmith.evaluation import StringEvaluator
+
+
+def jaccard_chars(output: str, answer: str) -> float:
+    """Naive Jaccard similarity between two strings."""
+    prediction_chars = set(output.strip().lower())
+    answer_chars = set(answer.strip().lower())
+    intersection = prediction_chars.intersection(answer_chars)
+    union = prediction_chars.union(answer_chars)
+    return len(intersection) / len(union)
+
+
+def grader(run_input: str, run_output: str, answer: Optional[str]) -> dict:
+    """Compute the score and/or label for this run."""
+    if answer is None:
+        value = "AMBIGUOUS"
+        score = 0.5
+    else:
+        score = jaccard_chars(run_output, answer)
+        value = "CORRECT" if score > 0.9 else "INCORRECT"
+    return dict(score=score, value=value)
+
+
+evaluator = StringEvaluator(evaluation_name="Jaccard", grading_function=grader)
+
+runs = client.list_runs(
+    project_name="my_project",
+    execution_order=1,
+    error=False,
+)
+for run in runs:
+    client.evaluate_run(run, evaluator)
+```
+
+## Integrations
+
+LangSmith easily integrates with your favorite LLM framework.
+
+## OpenAI SDK
+
+<!-- markdown-link-check-disable -->
+
+We provide a convenient wrapper for the [OpenAI SDK](https://platform.openai.com/docs/api-reference).
+
+In order to use, you first need to set your LangSmith API key.
+
+```shell
+export LANGSMITH_API_KEY=<your-api-key>
+```
+
+Next, you will need to install the LangSmith SDK:
+
+```shell
+pip install -U langsmith
+```
+
+After that, you can wrap the OpenAI client:
+
+```python
+from openai import OpenAI
+from langsmith import wrappers
+
+client = wrappers.wrap_openai(OpenAI())
+```
+
+Now, you can use the OpenAI client as you normally would, but now everything is logged to LangSmith!
+
+```python
+client.chat.completions.create(
+    model="gpt-5.4",
+    messages=[{"role": "user", "content": "Say this is a test"}],
+)
+```
+
+Oftentimes, you use the OpenAI client inside of other functions.
+You can get nested traces by using this wrapped client and decorating those functions with `@traceable`.
+See [this documentation](https://docs.smith.langchain.com/tracing/faq/logging_and_viewing) for more documentation how to use this decorator
+
+```python
+from langsmith import traceable
+
+
+@traceable(name="Call OpenAI")
+def my_function(text: str):
+    return client.chat.completions.create(
+        model="gpt-5.4",
+        messages=[{"role": "user", "content": f"Say {text}"}],
+    )
+
+
+my_function("hello world")
+```
+
+## Instructor
+
+We provide a convenient integration with [Instructor](https://jxnl.github.io/instructor/), largely by virtue of it essentially just using the OpenAI SDK.
+
+In order to use, you first need to set your LangSmith API key.
+
+```shell
+export LANGSMITH_API_KEY=<your-api-key>
+```
+
+Next, you will need to install the LangSmith SDK:
+
+```shell
+pip install -U langsmith
+```
+
+After that, you can wrap the OpenAI client:
+
+```python
+from openai import OpenAI
+from langsmith import wrappers
+
+client = wrappers.wrap_openai(OpenAI())
+```
+
+After this, you can patch the OpenAI client using `instructor`:
+
+```python
+import instructor
+
+client = instructor.patch(OpenAI())
+```
+
+Now, you can use `instructor` as you normally would, but now everything is logged to LangSmith!
+
+```python
+from pydantic import BaseModel
+
+
+class UserDetail(BaseModel):
+    name: str
+    age: int
+
+
+user = client.chat.completions.create(
+    model="gpt-5.4",
+    response_model=UserDetail,
+    messages=[
+        {"role": "user", "content": "Extract Jason is 25 years old"},
+    ],
+)
+```
+
+Oftentimes, you use `instructor` inside of other functions.
+You can get nested traces by using this wrapped client and decorating those functions with `@traceable`.
+See [this documentation](https://docs.smith.langchain.com/tracing/faq/logging_and_viewing) for more documentation how to use this decorator
+
+```python
+@traceable()
+def my_function(text: str) -> UserDetail:
+    return client.chat.completions.create(
+        model="gpt-5.4",
+        response_model=UserDetail,
+        messages=[
+            {"role": "user", "content": f"Extract {text}"},
+        ],
+    )
+
+
+my_function("Jason is 25 years old")
+```
+
+## Pytest Plugin
+
+The LangSmith pytest plugin lets Python developers define their datasets and evaluations as pytest test cases.
+See [online docs](https://docs.smith.langchain.com/evaluation/how_to_guides/pytest) for more information.
+
+This plugin is installed as part of the LangSmith SDK, and is enabled by default.
+See also official pytest docs: [How to install and use plugins](https://docs.pytest.org/en/stable/how-to/plugins.html)
+
+## Additional Documentation
+
+To learn more about the LangSmith platform, check out the [docs](https://docs.smith.langchain.com/).
+
+
+## License
+
+The LangSmith SDK is licensed under the [MIT License](https://github.com/langchain-ai/langsmith-python/tree/main/LICENSE).
+
+The copyright information for certain dependencies' are reproduced in their corresponding COPYRIGHT.txt files in this repo, including the following:
+
+- [uuid-utils](https://github.com/langchain-ai/langsmith-python/tree/main/licenses/uuid-utils.COPYRIGHT.txt)
+- [zstandard](https://github.com/langchain-ai/langsmith-python/tree/main/licenses/zstandard.COPYRIGHT.txt)
+
+# Generated REST client
+
+The low-level, generated client (`Langsmith` / `AsyncLangsmith`) ships in the same package. Everything below is maintained by Stainless.
+
+## Documentation
+
+The full API of this library can be found in [api.md](https://github.com/langchain-ai/langsmith-python/tree/main/api.md).
+
+## Installation
+
+```sh
+# install from the production repo
+pip install git+ssh://git@github.com/langchain-ai/langsmith-python.git
+```
+
+> [!NOTE]
+> Once this package is [published to PyPI](https://www.stainless.com/docs/guides/publish), this will become: `pip install langsmith`
+
+## Usage
+
+The full API of this library can be found in [api.md](https://github.com/langchain-ai/langsmith-python/tree/main/api.md).
+
+```python
+import os
+from langsmith import Langsmith
+
+client = Langsmith(
+    api_key=os.environ.get("LANGSMITH_API_KEY"),  # This is the default and can be omitted
+    tenant_id=os.environ.get("LANGSMITH_TENANT_ID"),  # This is the default and can be omitted
+)
+
+page = client.runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+print(page.items)
+```
+
+While you can provide an `api_key` keyword argument,
+we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
+to add `LANGSMITH_API_KEY="My API Key"` to your `.env` file
+so that your API Key is not stored in source control.
+
+## Async usage
+
+Simply import `AsyncLangsmith` instead of `Langsmith` and use `await` with each API call:
+
+```python
+import os
+import asyncio
+from langsmith import AsyncLangsmith
+
+client = AsyncLangsmith(
+    api_key=os.environ.get("LANGSMITH_API_KEY"),  # This is the default and can be omitted
+    tenant_id=os.environ.get("LANGSMITH_TENANT_ID"),  # This is the default and can be omitted
+)
+
+
+async def main() -> None:
+    page = await client.runs.query_v2(
+        project_ids=["00000000-0000-0000-0000-000000000000"],
+    )
+    print(page.items)
+
+
+asyncio.run(main())
+```
+
+Functionality between the synchronous and asynchronous clients is otherwise identical.
+
+### With aiohttp
+
+By default, the async client uses `httpx` for HTTP requests. However, for improved concurrency performance you may also use `aiohttp` as the HTTP backend.
+
+You can enable this by installing `aiohttp`:
+
+```sh
+# install from the production repo
+pip install 'langsmith[aiohttp] @ git+ssh://git@github.com/langchain-ai/langsmith-python.git'
+```
+
+Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
+
+```python
+import os
+import asyncio
+from langsmith import DefaultAioHttpClient
+from langsmith import AsyncLangsmith
+
+
+async def main() -> None:
+    async with AsyncLangsmith(
+        api_key=os.environ.get("LANGSMITH_API_KEY"),  # This is the default and can be omitted
+        tenant_id=os.environ.get("LANGSMITH_TENANT_ID"),  # This is the default and can be omitted
+        http_client=DefaultAioHttpClient(),
+    ) as client:
+        page = await client.runs.query_v2(
+            project_ids=["00000000-0000-0000-0000-000000000000"],
+        )
+        print(page.items)
+
+
+asyncio.run(main())
+```
+
+## Using types
+
+Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typing.html#typing.TypedDict). Responses are [Pydantic models](https://docs.pydantic.dev) which also provide helper methods for things like:
+
+- Serializing back into JSON, `model.to_json()`
+- Converting to a dictionary, `model.to_dict()`
+
+Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
+
+## Pagination
+
+List methods in the LangChain API are paginated.
+
+This library provides auto-paginating iterators with each list response, so you do not have to request successive pages manually:
+
+```python
+from langsmith import Langsmith
+
+client = Langsmith()
+
+all_runs = []
+# Automatically fetches more pages as needed.
+for run in client.runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+):
+    # Do something with run here
+    all_runs.append(run)
+print(all_runs)
+```
+
+Or, asynchronously:
+
+```python
+import asyncio
+from langsmith import AsyncLangsmith
+
+client = AsyncLangsmith()
+
+
+async def main() -> None:
+    all_runs = []
+    # Iterate through items across all pages, issuing requests as needed.
+    async for run in client.runs.query_v2(
+        project_ids=["00000000-0000-0000-0000-000000000000"],
+    ):
+        all_runs.append(run)
+    print(all_runs)
+
+
+asyncio.run(main())
+```
+
+Alternatively, you can use the `.has_next_page()`, `.next_page_info()`, or `.get_next_page()` methods for more granular control working with pages:
+
+```python
+first_page = await client.runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+if first_page.has_next_page():
+    print(f"will fetch next page using these details: {first_page.next_page_info()}")
+    next_page = await first_page.get_next_page()
+    print(f"number of items we just fetched: {len(next_page.items)}")
+
+# Remove `await` for non-async usage.
+```
+
+Or just work directly with the returned data:
+
+```python
+first_page = await client.runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+
+print(f"next page cursor: {first_page.next_cursor}")  # => "next page cursor: ..."
+for run in first_page.items:
+    print(run.id)
+
+# Remove `await` for non-async usage.
+```
+
+## Nested params
+
+Nested parameters are dictionaries, typed using `TypedDict`, for example:
+
+```python
+from langsmith import Langsmith
+
+client = Langsmith()
+
+product_feedback = client.product_feedback.create(
+    category="BUG",
+    message="x",
+    source="LANGSMITH_CLI",
+    client={},
+)
+print(product_feedback.client)
+```
+
+## Handling errors
+
+When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `langsmith.APIConnectionError` is raised.
+
+When the API returns a non-success status code (that is, 4xx or 5xx
+response), a subclass of `langsmith.APIStatusError` is raised, containing `status_code` and `response` properties.
+
+All errors inherit from `langsmith.APIError`.
+
+```python
+import langsmith
+from langsmith import Langsmith
+
+client = Langsmith()
+
+try:
+    client.runs.query_v2(
+        project_ids=["00000000-0000-0000-0000-000000000000"],
+    )
+except langsmith.APIConnectionError as e:
+    print("The server could not be reached")
+    print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+except langsmith.RateLimitError as e:
+    print("A 429 status code was received; we should back off a bit.")
+except langsmith.APIStatusError as e:
+    print("Another non-200-range status code was received")
+    print(e.status_code)
+    print(e.response)
+```
+
+Error codes are as follows:
+
+| Status Code | Error Type                 |
+| ----------- | -------------------------- |
+| 400         | `BadRequestError`          |
+| 401         | `AuthenticationError`      |
+| 403         | `PermissionDeniedError`    |
+| 404         | `NotFoundError`            |
+| 422         | `UnprocessableEntityError` |
+| 429         | `RateLimitError`           |
+| >=500       | `InternalServerError`      |
+| N/A         | `APIConnectionError`       |
+
+### Retries
+
+Certain errors are automatically retried 2 times by default, with a short exponential backoff.
+Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict,
+429 Rate Limit, and >=500 Internal errors are all retried by default.
+
+You can use the `max_retries` option to configure or disable retry settings:
+
+```python
+from langsmith import Langsmith
+
+# Configure the default for all requests:
+client = Langsmith(
+    # default is 2
+    max_retries=0,
+)
+
+# Or, configure per-request:
+client.with_options(max_retries=5).runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+```
+
+### Timeouts
+
+By default requests time out after 1.5 minutes. You can configure this with a `timeout` option,
+which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
+
+```python
+from langsmith import Langsmith
+
+# Configure the default for all requests:
+client = Langsmith(
+    # 20 seconds (default is 1.5 minutes)
+    timeout=20.0,
+)
+
+# More granular control:
+client = Langsmith(
+    timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
+)
+
+# Override per-request:
+client.with_options(timeout=5.0).runs.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+```
+
+On timeout, an `APITimeoutError` is thrown.
+
+Note that requests that time out are [retried twice by default](https://github.com/langchain-ai/langsmith-python/tree/main/#retries).
+
+## Advanced
+
+### Logging
+
+We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
+
+You can enable logging by setting the environment variable `LANGCHAIN_LOG` to `info`.
+
+```shell
+$ export LANGCHAIN_LOG=info
+```
+
+Or to `debug` for more verbose logging.
+
+### How to tell whether `None` means `null` or missing
+
+In an API response, a field may be explicitly `null`, or missing entirely; in either case, its value is `None` in this library. You can differentiate the two cases with `.model_fields_set`:
+
+```py
+if response.my_field is None:
+    if "my_field" not in response.model_fields_set:
+        print('Got json like {}, without a "my_field" key present at all.')
+    else:
+        print('Got json like {"my_field": null}.')
+```
+
+### Accessing raw response data (e.g. headers)
+
+The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
+
+```py
+from langsmith import Langsmith
+
+client = Langsmith()
+response = client.runs.with_raw_response.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+)
+print(response.headers.get("X-My-Header"))
+
+run = response.parse()  # get the object that `runs.query_v2()` would have returned
+print(run.id)
+```
+
+These methods return an [`APIResponse`](https://github.com/langchain-ai/langsmith-python/tree/main/src/langsmith/_response.py) object.
+
+The async client returns an [`AsyncAPIResponse`](https://github.com/langchain-ai/langsmith-python/tree/main/src/langsmith/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+
+#### `.with_streaming_response`
+
+The above interface eagerly reads the full response body when you make the request, which may not always be what you want.
+
+To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
+
+```python
+with client.runs.with_streaming_response.query_v2(
+    project_ids=["00000000-0000-0000-0000-000000000000"],
+) as response:
+    print(response.headers.get("X-My-Header"))
+
+    for line in response.iter_lines():
+        print(line)
+```
+
+The context manager is required so that the response will reliably be closed.
+
+### Making custom/undocumented requests
+
+This library is typed for convenient access to the documented API.
+
+If you need to access undocumented endpoints, params, or response properties, the library can still be used.
+
+#### Undocumented endpoints
+
+To make requests to undocumented endpoints, you can make requests using `client.get`, `client.post`, and other
+http verbs. Options on the client will be respected (such as retries) when making this request.
+
+```py
+import httpx
+
+response = client.post(
+    "/foo",
+    cast_to=httpx.Response,
+    body={"my_param": True},
+)
+
+print(response.headers.get("x-foo"))
+```
+
+#### Undocumented request params
+
+If you want to explicitly send an extra param, you can do so with the `extra_query`, `extra_body`, and `extra_headers` request
+options.
+
+#### Undocumented response properties
+
+To access undocumented response properties, you can access the extra fields like `response.unknown_prop`. You
+can also get all the extra fields on the Pydantic model as a dict with
+[`response.model_extra`](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_extra).
+
+### Configuring the HTTP client
+
+You can directly override the [httpx client](https://www.python-httpx.org/api/#client) to customize it for your use case, including:
+
+- Support for [proxies](https://www.python-httpx.org/advanced/proxies/)
+- Custom [transports](https://www.python-httpx.org/advanced/transports/)
+- Additional [advanced](https://www.python-httpx.org/advanced/clients/) functionality
+
+```python
+import httpx
+from langsmith import Langsmith, DefaultHttpxClient
+
+client = Langsmith(
+    # Or use the `LANGCHAIN_BASE_URL` env var
+    base_url="http://my.test.server.example.com:8083",
+    http_client=DefaultHttpxClient(
+        proxy="http://my.test.proxy.example.com",
+        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
+    ),
+)
+```
+
+You can also customize the client on a per-request basis by using `with_options()`:
+
+```python
+client.with_options(http_client=DefaultHttpxClient(...))
+```
+
+### Managing HTTP resources
+
+By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
+
+```py
+from langsmith import Langsmith
+
+with Langsmith() as client:
+    # make requests here
+    ...
+
+# HTTP client is now closed
+```
+
+## Versioning
+
+This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
+
+1. Changes that only affect static types, without breaking runtime behavior.
+2. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
+3. Changes that we do not expect to impact the vast majority of users in practice.
+
+We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
+
+We are keen for your feedback; please open an [issue](https://www.github.com/langchain-ai/langsmith-python/issues) with questions, bugs, or suggestions.
+
+### Determining the installed version
+
+If you've upgraded to the latest version but aren't seeing any new features you were expecting then your python environment is likely still using an older version.
+
+You can determine the version that is being used at runtime with:
+
+```py
+import langsmith
+
+print(langsmith.__version__)
+```
+
+## Requirements
+
+Python 3.10 or higher.
+
+## Contributing
+
+See [the contributing documentation](https://github.com/langchain-ai/langsmith-python/tree/main/./CONTRIBUTING.md).

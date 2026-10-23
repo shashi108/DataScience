@@ -1,0 +1,8 @@
+#!/bin/sh
+'''exec' "/Volumes/E/1/Travel Planning Multi-Agent AI System Production-Ready/planner_env_new/bin/python" "$0" "$@"
+' '''
+import sys
+from dotenv.__main__ import cli
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(cli())
