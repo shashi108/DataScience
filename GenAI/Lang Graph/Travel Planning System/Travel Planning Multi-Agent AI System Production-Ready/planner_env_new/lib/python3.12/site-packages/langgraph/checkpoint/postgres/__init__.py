@@ -1,0 +1,677 @@
+from __future__ import annotations
+
+import threading
+from collections import defaultdict
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from typing import Any, cast
+
+from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import (
+    WRITES_IDX_MAP,
+    ChannelVersions,
+    Checkpoint,
+    CheckpointMetadata,
+    CheckpointTuple,
+    DeltaChannelHistory,
+    get_checkpoint_id,
+    get_serializable_checkpoint_metadata,
+)
+from langgraph.checkpoint.serde.base import SerializerProtocol
+from langgraph.checkpoint.serde.types import _DeltaSnapshot
+from psycopg import Capabilities, Connection, Cursor, Pipeline
+from psycopg.rows import DictRow, dict_row
+from psycopg.types.json import Jsonb
+from psycopg_pool import ConnectionPool
+
+from langgraph.checkpoint.postgres import _internal
+from langgraph.checkpoint.postgres.base import (
+    _DELTA_PAGE_SIZE,
+    PRUNE_DELETE_THREADS_SQL,
+    PRUNE_STRATEGIES,
+    BasePostgresSaver,
+    _build_delta_stage1_sql,
+    _build_delta_stage2_sql,
+    _DeltaStage2Row,
+    _execute,
+    _keep_latest,
+    _refuse_delta_threads,
+)
+from langgraph.checkpoint.postgres.shallow import ShallowPostgresSaver
+
+Conn = _internal.Conn  # For backward compatibility
+
+
+class PostgresSaver(BasePostgresSaver):
+    """Checkpointer that stores checkpoints in a Postgres database."""
+
+    lock: threading.Lock
+
+    def __init__(
+        self,
+        conn: _internal.Conn,
+        pipe: Pipeline | None = None,
+        serde: SerializerProtocol | None = None,
+    ) -> None:
+        super().__init__(serde=serde)
+        if isinstance(conn, ConnectionPool) and pipe is not None:
+            raise ValueError(
+                "Pipeline should be used only with a single Connection, not ConnectionPool."
+            )
+
+        self.conn = conn
+        self.pipe = pipe
+        self.lock = threading.Lock()
+        self.supports_pipeline = Capabilities().has_pipeline()
+
+    @classmethod
+    @contextmanager
+    def from_conn_string(
+        cls, conn_string: str, *, pipeline: bool = False
+    ) -> Iterator[PostgresSaver]:
+        """Create a new PostgresSaver instance from a connection string.
+
+        Args:
+            conn_string: The Postgres connection info string.
+            pipeline: whether to use Pipeline
+
+        Returns:
+            PostgresSaver: A new PostgresSaver instance.
+        """
+        with Connection.connect(
+            conn_string, autocommit=True, prepare_threshold=0, row_factory=dict_row
+        ) as conn:
+            if pipeline:
+                with conn.pipeline() as pipe:
+                    yield cls(conn, pipe)
+            else:
+                yield cls(conn)
+
+    def setup(self) -> None:
+        """Set up the checkpoint database asynchronously.
+
+        This method creates the necessary tables in the Postgres database if they don't
+        already exist and runs database migrations. It MUST be called directly by the user
+        the first time checkpointer is used.
+        """
+        with self._cursor() as cur:
+            cur.execute(self.MIGRATIONS[0])
+            results = cur.execute(
+                "SELECT v FROM checkpoint_migrations ORDER BY v DESC LIMIT 1"
+            )
+            row = results.fetchone()
+            if row is None:
+                version = -1
+            else:
+                version = row["v"]
+            for v, migration in zip(
+                range(version + 1, len(self.MIGRATIONS)),
+                self.MIGRATIONS[version + 1 :],
+                strict=False,
+            ):
+                cur.execute(migration)
+                cur.execute("INSERT INTO checkpoint_migrations (v) VALUES (%s)", (v,))
+        if self.pipe:
+            self.pipe.sync()
+
+    def list(
+        self,
+        config: RunnableConfig | None,
+        *,
+        filter: dict[str, Any] | None = None,
+        before: RunnableConfig | None = None,
+        limit: int | None = None,
+    ) -> Iterator[CheckpointTuple]:
+        """List checkpoints from the database.
+
+        This method retrieves a list of checkpoint tuples from the Postgres database based
+        on the provided config. The checkpoints are ordered by checkpoint ID in descending order (newest first).
+
+        Args:
+            config: The config to use for listing the checkpoints.
+            filter: Additional filtering criteria for metadata.
+            before: If provided, only checkpoints before the specified checkpoint ID are returned.
+            limit: The maximum number of checkpoints to return.
+
+        Yields:
+            An iterator of checkpoint tuples.
+
+        Examples:
+            >>> from langgraph.checkpoint.postgres import PostgresSaver
+            >>> DB_URI = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+            >>> with PostgresSaver.from_conn_string(DB_URI) as memory:
+            ... # Run a graph, then list the checkpoints
+            >>>     config = {"configurable": {"thread_id": "1"}}
+            >>>     checkpoints = list(memory.list(config, limit=2))
+            >>> print(checkpoints)
+            [CheckpointTuple(...), CheckpointTuple(...)]
+
+            >>> config = {"configurable": {"thread_id": "1"}}
+            >>> before = {"configurable": {"checkpoint_id": "1ef4f797-8335-6428-8001-8a1503f9b875"}}
+            >>> with PostgresSaver.from_conn_string(DB_URI) as memory:
+            ... # Run a graph, then list the checkpoints
+            >>>     checkpoints = list(memory.list(config, before=before))
+            >>> print(checkpoints)
+            [CheckpointTuple(...), ...]
+        """
+        where, args = self._search_where(config, filter, before)
+        query = self.SELECT_SQL + where + " ORDER BY checkpoint_id DESC"
+        params = list(args)
+        if limit is not None:
+            query += " LIMIT %s"
+            params.append(int(limit))
+        # if we change this to use .stream() we need to make sure to close the cursor
+        with self._cursor() as cur:
+            cur.execute(query, params)
+            values = cur.fetchall()
+            if not values:
+                return
+            # migrate pending sends if necessary
+            if to_migrate := [
+                v
+                for v in values
+                if v["checkpoint"]["v"] < 4 and v["parent_checkpoint_id"]
+            ]:
+                cur.execute(
+                    self.SELECT_PENDING_SENDS_SQL,
+                    (
+                        values[0]["thread_id"],
+                        [v["parent_checkpoint_id"] for v in to_migrate],
+                    ),
+                )
+                grouped_by_parent = defaultdict(list)
+                for value in to_migrate:
+                    grouped_by_parent[value["parent_checkpoint_id"]].append(value)
+                for sends in cur:
+                    for value in grouped_by_parent[sends["checkpoint_id"]]:
+                        if value["channel_values"] is None:
+                            value["channel_values"] = []
+                        self._migrate_pending_sends(
+                            sends["sends"],
+                            value["checkpoint"],
+                            value["channel_values"],
+                        )
+            for value in values:
+                yield self._load_checkpoint_tuple(value)
+
+    def get_tuple(self, config: RunnableConfig) -> CheckpointTuple | None:
+        """Get a checkpoint tuple from the database.
+
+        This method retrieves a checkpoint tuple from the Postgres database based on the
+        provided config. If the config contains a `checkpoint_id` key, the checkpoint with
+        the matching thread ID and timestamp is retrieved. Otherwise, the latest checkpoint
+        for the given thread ID is retrieved.
+
+        Args:
+            config: The config to use for retrieving the checkpoint.
+
+        Returns:
+            The retrieved checkpoint tuple, or None if no matching checkpoint was found.
+
+        Examples:
+
+            Basic:
+            >>> config = {"configurable": {"thread_id": "1"}}
+            >>> checkpoint_tuple = memory.get_tuple(config)
+            >>> print(checkpoint_tuple)
+            CheckpointTuple(...)
+
+            With timestamp:
+
+            >>> config = {
+            ...    "configurable": {
+            ...        "thread_id": "1",
+            ...        "checkpoint_ns": "",
+            ...        "checkpoint_id": "1ef4f797-8335-6428-8001-8a1503f9b875",
+            ...    }
+            ... }
+            >>> checkpoint_tuple = memory.get_tuple(config)
+            >>> print(checkpoint_tuple)
+            CheckpointTuple(...)
+        """
+        thread_id = config["configurable"]["thread_id"]
+        checkpoint_id = get_checkpoint_id(config)
+        checkpoint_ns = config["configurable"].get("checkpoint_ns", "")
+        if checkpoint_id:
+            args: tuple[Any, ...] = (thread_id, checkpoint_ns, checkpoint_id)
+            where = "WHERE thread_id = %s AND checkpoint_ns = %s AND checkpoint_id = %s"
+        else:
+            args = (thread_id, checkpoint_ns)
+            where = "WHERE thread_id = %s AND checkpoint_ns = %s ORDER BY checkpoint_id DESC LIMIT 1"
+
+        with self._cursor() as cur:
+            cur.execute(
+                self.SELECT_SQL + where,
+                args,
+            )
+            value = cur.fetchone()
+            if value is None:
+                return None
+
+            # migrate pending sends if necessary
+            if value["checkpoint"]["v"] < 4 and value["parent_checkpoint_id"]:
+                cur.execute(
+                    self.SELECT_PENDING_SENDS_SQL,
+                    (thread_id, [value["parent_checkpoint_id"]]),
+                )
+                if sends := cur.fetchone():
+                    if value["channel_values"] is None:
+                        value["channel_values"] = []
+                    self._migrate_pending_sends(
+                        sends["sends"],
+                        value["checkpoint"],
+                        value["channel_values"],
+                    )
+
+            return self._load_checkpoint_tuple(value)
+
+    def put(
+        self,
+        config: RunnableConfig,
+        checkpoint: Checkpoint,
+        metadata: CheckpointMetadata,
+        new_versions: ChannelVersions,
+    ) -> RunnableConfig:
+        """Save a checkpoint to the database.
+
+        This method saves a checkpoint to the Postgres database. The checkpoint is associated
+        with the provided config and its parent config (if any).
+
+        Args:
+            config: The config to associate with the checkpoint.
+            checkpoint: The checkpoint to save.
+            metadata: Additional metadata to save with the checkpoint.
+            new_versions: New channel versions as of this write.
+
+        Returns:
+            RunnableConfig: Updated configuration after storing the checkpoint.
+
+        Examples:
+
+            >>> from langgraph.checkpoint.postgres import PostgresSaver
+            >>> DB_URI = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+            >>> with PostgresSaver.from_conn_string(DB_URI) as memory:
+            >>>     config = {"configurable": {"thread_id": "1", "checkpoint_ns": ""}}
+            >>>     checkpoint = {"ts": "2024-05-04T06:32:42.235444+00:00", "id": "1ef4f797-8335-6428-8001-8a1503f9b875", "channel_values": {"key": "value"}}
+            >>>     saved_config = memory.put(config, checkpoint, {"source": "input", "step": 1, "writes": {"key": "value"}}, {})
+            >>> print(saved_config)
+            {'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef4f797-8335-6428-8001-8a1503f9b875'}}
+        """
+        configurable = config["configurable"].copy()
+        thread_id = configurable.pop("thread_id")
+        checkpoint_ns = configurable.pop("checkpoint_ns")
+        checkpoint_id = configurable.pop("checkpoint_id", None)
+        copy = checkpoint.copy()
+        copy["channel_values"] = copy["channel_values"].copy()
+        next_config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "checkpoint_ns": checkpoint_ns,
+                "checkpoint_id": checkpoint["id"],
+            }
+        }
+
+        # inline primitive values in checkpoint table
+        # others are stored in blobs table
+        blob_values = {}
+        for k, v in checkpoint["channel_values"].items():
+            if isinstance(v, _DeltaSnapshot):
+                blob_values[k] = copy["channel_values"].pop(k)
+                copy["channel_values"][k] = True
+            elif v is None or isinstance(v, (str, int, float, bool)):
+                pass
+            else:
+                blob_values[k] = copy["channel_values"].pop(k)
+
+        with self._cursor(pipeline=True) as cur:
+            if blob_versions := {
+                k: v for k, v in new_versions.items() if k in blob_values
+            }:
+                cur.executemany(
+                    self.UPSERT_CHECKPOINT_BLOBS_SQL,
+                    self._dump_blobs(
+                        thread_id,
+                        checkpoint_ns,
+                        blob_values,
+                        blob_versions,
+                    ),
+                )
+            cur.execute(
+                self.UPSERT_CHECKPOINTS_SQL,
+                (
+                    thread_id,
+                    checkpoint_ns,
+                    checkpoint["id"],
+                    checkpoint_id,
+                    Jsonb(copy),
+                    Jsonb(get_serializable_checkpoint_metadata(config, metadata)),
+                ),
+            )
+        return next_config
+
+    def put_writes(
+        self,
+        config: RunnableConfig,
+        writes: Sequence[tuple[str, Any]],
+        task_id: str,
+        task_path: str = "",
+    ) -> None:
+        """Store intermediate writes linked to a checkpoint.
+
+        This method saves intermediate writes associated with a checkpoint to the Postgres database.
+
+        Args:
+            config: Configuration of the related checkpoint.
+            writes: List of writes to store.
+            task_id: Identifier for the task creating the writes.
+        """
+        query = (
+            self.UPSERT_CHECKPOINT_WRITES_SQL
+            if all(w[0] in WRITES_IDX_MAP for w in writes)
+            else self.INSERT_CHECKPOINT_WRITES_SQL
+        )
+        with self._cursor(pipeline=True) as cur:
+            cur.executemany(
+                query,
+                self._dump_writes(
+                    config["configurable"]["thread_id"],
+                    config["configurable"]["checkpoint_ns"],
+                    config["configurable"]["checkpoint_id"],
+                    task_id,
+                    task_path,
+                    writes,
+                ),
+            )
+
+    def delete_thread(self, thread_id: str) -> None:
+        """Delete all checkpoints and writes associated with a thread ID.
+
+        Args:
+            thread_id: The thread ID to delete.
+
+        Returns:
+            None
+        """
+        with self._cursor(pipeline=True) as cur:
+            cur.execute(
+                "DELETE FROM checkpoints WHERE thread_id = %s",
+                (str(thread_id),),
+            )
+            cur.execute(
+                "DELETE FROM checkpoint_blobs WHERE thread_id = %s",
+                (str(thread_id),),
+            )
+            cur.execute(
+                "DELETE FROM checkpoint_writes WHERE thread_id = %s",
+                (str(thread_id),),
+            )
+
+    def prune(
+        self,
+        thread_ids: Sequence[str],
+        *,
+        strategy: str = "keep_latest",
+    ) -> None:
+        """Prune checkpoints for the given threads.
+
+        `"delete"` removes every checkpoint, write and blob of the threads, in
+        one transaction.
+
+        `"keep_latest"` keeps the latest checkpoint of each namespace (the one
+        `get_tuple` loads, plus its parent when it predates v4 and has pending
+        sends), with its pending writes and the blobs it references, and
+        deletes the rest. A kept checkpoint whose parent it deletes is left with
+        no parent. A subgraph call's namespace is deleted with the root
+        checkpoint the call started from, except a `checkpointer=True`
+        subgraph's, which keeps its latest checkpoint. Each thread is pruned in
+        its own transaction, on one snapshot of it, so a run appending to the
+        thread meanwhile is safe; forking or replaying from a checkpoint being
+        deleted is not. A thread that fails because another transaction changed
+        it leaves the threads before it pruned, and retrying is safe.
+
+        `"keep_latest"` refuses threads that use a `DeltaChannel`, since it
+        rebuilds the latest value from older checkpoints: if any requested
+        thread does, nothing is pruned. A thread that starts using one before
+        its turn in the batch is refused then, after the threads before it.
+
+        Args:
+            thread_ids: The thread IDs to prune.
+            strategy: `"keep_latest"` or `"delete"`.
+
+        Raises:
+            TypeError: If `thread_ids` is a single string.
+            ValueError: If `strategy` is unknown.
+            NotImplementedError: If `strategy` is `"keep_latest"` and a thread
+                uses a `DeltaChannel`.
+            psycopg.errors.SerializationFailure: If another transaction, such
+                as a second prune, changes a thread's rows while `"keep_latest"`
+                prunes it.
+            psycopg.errors.DeadlockDetected: If a second prune of a thread runs
+                at the same time.
+        """
+        if isinstance(thread_ids, str):
+            raise TypeError("thread_ids must be a sequence of thread IDs, not a str")
+        if strategy not in PRUNE_STRATEGIES:
+            raise ValueError(f"Unknown prune strategy: {strategy!r}")
+        thread_ids = [str(t) for t in thread_ids]
+        if not thread_ids:
+            return
+        if strategy == "delete":
+            with self._cursor() as cur, cur.connection.transaction():
+                for sql in PRUNE_DELETE_THREADS_SQL:
+                    cur.execute(sql, (thread_ids,))
+            return
+        with self._cursor() as cur:
+            _execute(cur, _refuse_delta_threads(thread_ids))
+        for thread_id in thread_ids:
+            with self._cursor() as cur:
+                if self.pipe:
+                    # The transaction has to start with its isolation level, and
+                    # in pipeline mode it would take in what ran since the last
+                    # sync.
+                    self.pipe.sync()
+                with cur.connection.transaction():
+                    _execute(cur, _keep_latest(thread_id))
+
+    @contextmanager
+    def _cursor(self, *, pipeline: bool = False) -> Iterator[Cursor[DictRow]]:
+        """Create a database cursor as a context manager.
+
+        Args:
+            pipeline: whether to use pipeline for the DB operations inside the context manager.
+                Will be applied regardless of whether the PostgresSaver instance was initialized with a pipeline.
+                If pipeline mode is not supported, will fall back to using transaction context manager.
+        """
+        with self.lock, _internal.get_connection(self.conn) as conn:
+            if self.pipe:
+                # a connection in pipeline mode can be used concurrently
+                # in multiple threads/coroutines, but only one cursor can be
+                # used at a time
+                try:
+                    with conn.cursor(binary=True, row_factory=dict_row) as cur:
+                        yield cur
+                finally:
+                    if pipeline:
+                        self.pipe.sync()
+            elif pipeline:
+                # a connection not in pipeline mode can only be used by one
+                # thread/coroutine at a time, so we acquire a lock
+                if self.supports_pipeline:
+                    with (
+                        conn.pipeline(),
+                        conn.cursor(binary=True, row_factory=dict_row) as cur,
+                    ):
+                        yield cur
+                else:
+                    # Use connection's transaction context manager when pipeline mode not supported
+                    with (
+                        conn.transaction(),
+                        conn.cursor(binary=True, row_factory=dict_row) as cur,
+                    ):
+                        yield cur
+            else:
+                with conn.cursor(binary=True, row_factory=dict_row) as cur:
+                    yield cur
+
+    def get_delta_channel_history(
+        self, *, config: RunnableConfig, channels: Sequence[str]
+    ) -> Mapping[str, DeltaChannelHistory]:
+        """Fast-path override of `BaseCheckpointSaver.get_delta_channel_history`.
+
+        Two-stage query, both stages cover ALL requested channels:
+
+        * Stage 1 (paged): dynamic SELECT over `checkpoints` with three
+          columns per channel: its version, an `EXISTS` probe for a stored
+          blob at that version, and its inline value. Pages newest-first by
+          `checkpoint_id`, starting at the target; page size is
+          `_DELTA_PAGE_SIZE`.
+          Stops paging when every channel has found its seed or a page comes
+          back short.
+
+        * Stage 2 (per-channel UNION ALL): one branch per channel reading
+          `checkpoint_writes` filtered to that channel's specific
+          `chain_cids`, plus one branch per channel that has a seed reading
+          `checkpoint_blobs` for that channel + version. Avoids the
+          over-fetch of a single `channel = ANY(channels)` filter when
+          channels have different chain depths.
+        """
+        if not channels:
+            return {}
+        channels = list(channels)
+        thread_id = config["configurable"]["thread_id"]
+        checkpoint_ns = config["configurable"].get("checkpoint_ns", "")
+        checkpoint_id = get_checkpoint_id(config)
+        if not checkpoint_id:
+            target = self.get_tuple(config)
+            if target is None:
+                return {ch: {"writes": []} for ch in channels}
+            checkpoint_id = target.config["configurable"]["checkpoint_id"]
+
+        # Stage 1: paged K-JSONB-lookup scan, walking the parent chain in
+        # Python after each page. Stops as soon as every channel has its seed.
+        stage1_sql = _build_delta_stage1_sql(channels, paged=True, include_cursor=True)
+        parent_of: dict[str, str | None] = {}
+        ver_by_i_by_cid: list[dict[str, str | None]] = [{} for _ in channels]
+        hb_by_i_by_cid: list[dict[str, bool]] = [{} for _ in channels]
+        inline_by_i_by_cid: list[dict[str, Any]] = [{} for _ in channels]
+        chain_by_ch: dict[str, list[str]] = {ch: [] for ch in channels}
+        seed_ver_by_ch: dict[str, str | None] = {ch: None for ch in channels}
+        seed_inline_by_ch: dict[str, Any] = {}
+        walk_cursor_by_ch: dict[str, str | None] = {}
+        seeded: set[str] = set()
+        cursor: str | None = checkpoint_id
+
+        with self._cursor() as cur:
+            while True:
+                stage1_params: list[Any] = []
+                for ch in channels:
+                    # ver_i, blob channel, blob version, inline_i
+                    stage1_params.extend([ch, ch, ch, ch])
+                stage1_params.extend(
+                    [thread_id, checkpoint_ns, cursor, _DELTA_PAGE_SIZE]
+                )
+                cur.execute(stage1_sql, stage1_params)
+                page = cur.fetchall()
+                if not page:
+                    break
+                oldest = self._ingest_stage1_page(
+                    cast("list[Mapping[str, Any]]", page),
+                    channels,
+                    parent_of,
+                    ver_by_i_by_cid,
+                    hb_by_i_by_cid,
+                    inline_by_i_by_cid,
+                )
+                self._try_advance_walks(
+                    checkpoint_id,
+                    channels,
+                    parent_of,
+                    ver_by_i_by_cid,
+                    hb_by_i_by_cid,
+                    inline_by_i_by_cid,
+                    chain_by_ch,
+                    seed_ver_by_ch,
+                    seed_inline_by_ch,
+                    walk_cursor_by_ch,
+                    seeded,
+                )
+                # Stop if every channel is seeded, or the page was short
+                # (chain exhausted — no more rows to fetch).
+                if len(seeded) == len(channels) or len(page) < _DELTA_PAGE_SIZE:
+                    break
+                cursor = oldest
+                stage1_sql = _build_delta_stage1_sql(channels, paged=True)
+
+        # Stage 2: per-channel UNION ALL — one writes branch per channel
+        # with non-empty chain, plus one blob branch per seeded channel.
+        channels_with_chain = [ch for ch in channels if chain_by_ch[ch]]
+        channels_with_seed = [ch for ch in channels if seed_ver_by_ch[ch] is not None]
+        stage2_sql = _build_delta_stage2_sql(
+            channels_with_chain=channels_with_chain,
+            channels_with_seed=channels_with_seed,
+        )
+
+        if stage2_sql:
+            stage2_params: list[Any] = []
+            for ch in channels_with_chain:
+                stage2_params.extend([thread_id, checkpoint_ns, ch, chain_by_ch[ch]])
+            for ch in channels_with_seed:
+                stage2_params.extend([thread_id, checkpoint_ns, ch, seed_ver_by_ch[ch]])
+            with self._cursor() as cur:
+                cur.execute(stage2_sql, stage2_params)
+                stage2_rows = cur.fetchall()
+        else:
+            stage2_rows = []
+
+        return self._build_delta_channels_writes_history(
+            channels=channels,
+            chain_by_ch=chain_by_ch,
+            seed_ver_by_ch=seed_ver_by_ch,
+            seed_inline_by_ch=seed_inline_by_ch,
+            stage2_rows=cast("list[_DeltaStage2Row]", stage2_rows),
+        )
+
+    def _load_checkpoint_tuple(self, value: DictRow) -> CheckpointTuple:
+        """
+        Convert a database row into a CheckpointTuple object.
+
+        Args:
+            value: A row from the database containing checkpoint data.
+
+        Returns:
+            CheckpointTuple: A structured representation of the checkpoint,
+            including its configuration, metadata, parent checkpoint (if any),
+            and pending writes.
+        """
+        return CheckpointTuple(
+            {
+                "configurable": {
+                    "thread_id": value["thread_id"],
+                    "checkpoint_ns": value["checkpoint_ns"],
+                    "checkpoint_id": value["checkpoint_id"],
+                }
+            },
+            {
+                **value["checkpoint"],
+                "channel_values": {
+                    **(value["checkpoint"].get("channel_values") or {}),
+                    **self._load_blobs(value["channel_values"]),
+                },
+            },
+            value["metadata"],
+            (
+                {
+                    "configurable": {
+                        "thread_id": value["thread_id"],
+                        "checkpoint_ns": value["checkpoint_ns"],
+                        "checkpoint_id": value["parent_checkpoint_id"],
+                    }
+                }
+                if value["parent_checkpoint_id"]
+                else None
+            ),
+            self._load_writes(value["pending_writes"]),
+        )
+
+
+__all__ = ["PostgresSaver", "BasePostgresSaver", "ShallowPostgresSaver", "Conn"]

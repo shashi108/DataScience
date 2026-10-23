@@ -1,0 +1,1 @@
+import{t as e}from"./es6.COwh37fH.js";export{e as FileSystemFileHandle,e as default};
