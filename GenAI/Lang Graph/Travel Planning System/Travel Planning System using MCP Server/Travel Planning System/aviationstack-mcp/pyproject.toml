@@ -1,0 +1,52 @@
+[project]
+name = "aviationstack-mcp"
+version = "1.8.1"
+description = "An MCP server using the AviationStack API to fetch real-time flight data including airline flights, airport schedules, future flights and aircraft types"
+readme = "README.md"
+authors = [
+    { name = "Pradumna Saraf", email = "pradumnasaraf@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=1.10.1,<2",
+    "requests",
+    "pydantic>=2.0",
+    "langchain-mcp-adapters>=0.3.2",
+    "python-dotenv>=1.2.2",
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "server",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only"
+]
+
+[project.scripts]
+aviationstack-mcp = "aviationstack_mcp:main"
+
+[project.urls]
+Homepage = "https://github.com/pradumnasaraf/aviationstack-mcp"
+Repository = "https://github.com/pradumnasaraf/aviationstack-mcp"
+Issues = "https://github.com/pradumnasaraf/aviationstack-mcp/issues"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.0",
+    "pylint>=3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
