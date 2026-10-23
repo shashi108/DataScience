@@ -1,0 +1,674 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+from typing import Dict
+
+from ..._httpx import httpx
+from ..._types import Body, Omit, Query, Headers, NoneType, NotGiven, SequenceNotStr, omit, not_given
+from ..._utils import path_template, maybe_transform, async_maybe_transform
+from ..._compat import cached_property
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
+    to_raw_response_wrapper,
+    to_streamed_response_wrapper,
+    async_to_raw_response_wrapper,
+    async_to_streamed_response_wrapper,
+)
+from ...pagination import SyncItemsCursorGetPagination, AsyncItemsCursorGetPagination
+from ..._base_client import AsyncPaginator, make_request_options
+from ...types.sandboxes import snapshot_list_params, snapshot_create_params
+from ...types.snapshot_response import SnapshotResponse
+from ...types.sandboxes.snapshot_retrieve_by_name_response import SnapshotRetrieveByNameResponse
+
+__all__ = ["SnapshotsResource", "AsyncSnapshotsResource"]
+
+
+class SnapshotsResource(SyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> SnapshotsResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#accessing-raw-response-data-eg-headers
+        """
+        return SnapshotsResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> SnapshotsResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#with_streaming_response
+        """
+        return SnapshotsResourceWithStreamingResponse(self)
+
+    def create(
+        self,
+        *,
+        docker_image: str,
+        fs_capacity_bytes: int,
+        name: str,
+        description: str | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        registry_id: str | Omit = omit,
+        run_config: snapshot_create_params.RunConfig | Omit = omit,
+        tag: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """Create a snapshot from a Docker image (async build).
+
+        Names use lowercase
+        registry-style components separated by slashes, up to 255 characters. The
+        system/ namespace is read-only.
+
+        Args:
+          description: Description says what this snapshot's image can do, so a caller can hand it to
+              an agent as a capability summary. At most 1024 characters.
+
+          labels: Labels seed the snapshot's labels, overriding any label of the same key derived
+              from the Docker image.
+
+          run_config: RunConfig overrides the runtime configuration taken from the Docker image. Every
+              sandbox created from the snapshot runs as the image's USER, in its WORKDIR, with
+              its ENV beneath the sandbox's own env_vars; user and work_dir given here replace
+              the image's, and env_vars merge over it.
+
+          tag: mutable Docker-style tag; defaults to "latest"
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/api/v2/sandboxes/snapshots",
+            body=maybe_transform(
+                {
+                    "docker_image": docker_image,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "name": name,
+                    "description": description,
+                    "labels": labels,
+                    "registry_id": registry_id,
+                    "run_config": run_config,
+                    "tag": tag,
+                },
+                snapshot_create_params.SnapshotCreateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    def retrieve(
+        self,
+        snapshot_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """
+        Get a sandbox snapshot by ID or a registry-style reference, including
+        system/default:latest. URL-encode references containing slashes. A bare name
+        means name:latest, falling back to the newest ready untagged snapshot of that
+        name. To list the tags under a name, use
+        /api/v2/sandboxes/snapshots-by-name/{name}.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not snapshot_id:
+            raise ValueError(f"Expected a non-empty value for `snapshot_id` but received {snapshot_id!r}")
+        return self._get(
+            path_template("/api/v2/sandboxes/snapshots/{snapshot_id}", snapshot_id=snapshot_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    def list(
+        self,
+        *,
+        created_by: str | Omit = omit,
+        cursor: str | Omit = omit,
+        label: SequenceNotStr[str] | Omit = omit,
+        limit: int | Omit = omit,
+        name_contains: str | Omit = omit,
+        offset: int | Omit = omit,
+        page_size: int | Omit = omit,
+        sort_by: str | Omit = omit,
+        sort_direction: str | Omit = omit,
+        sort_order: str | Omit = omit,
+        status: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SyncItemsCursorGetPagination[SnapshotResponse]:
+        """
+        List workspace and published system snapshots, with optional filtering, sorting,
+        and pagination. Page with page_size and cursor: replay the response's
+        next_cursor until it comes back null, which is the only signal that no pages
+        remain. Cursors are opaque and only valid on this endpoint; do not parse or
+        construct one.
+
+        Args:
+          created_by: Filter by creator identity. Only 'me' is supported.
+
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          label: Filter by label. Repeatable; all must match. Use 'key' to match on key presence
+              or 'key=value' for equality.
+
+          limit: Deprecated: use page_size. Maximum number of results
+
+          name_contains: Filter by name substring
+
+          offset: Deprecated: use cursor. Pagination offset
+
+          page_size: Number of results per page
+
+          sort_by: Sort column (name, status, created_at)
+
+          sort_direction: Deprecated: use sort_order. Sort direction (asc, desc)
+
+          sort_order: Sort direction (asc, desc)
+
+          status: Filter by status (building, ready, failed, deleting)
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._get_api_list(
+            "/api/v2/sandboxes/snapshots",
+            page=SyncItemsCursorGetPagination[SnapshotResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "created_by": created_by,
+                        "cursor": cursor,
+                        "label": label,
+                        "limit": limit,
+                        "name_contains": name_contains,
+                        "offset": offset,
+                        "page_size": page_size,
+                        "sort_by": sort_by,
+                        "sort_direction": sort_direction,
+                        "sort_order": sort_order,
+                        "status": status,
+                    },
+                    snapshot_list_params.SnapshotListParams,
+                ),
+            ),
+            model=SnapshotResponse,
+        )
+
+    def delete(
+        self,
+        snapshot_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Delete a snapshot by ID or by a Docker-style name[:tag] reference.
+
+        The
+        underlying storage is reclaimed asynchronously.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not snapshot_id:
+            raise ValueError(f"Expected a non-empty value for `snapshot_id` but received {snapshot_id!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return self._delete(
+            path_template("/api/v2/sandboxes/snapshots/{snapshot_id}", snapshot_id=snapshot_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+    def retrieve_by_name(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotRetrieveByNameResponse:
+        """
+        Get a snapshot name and every tag under it, with the snapshot each tag resolves
+        to. To fetch one snapshot, use /api/v2/sandboxes/snapshots/{snapshot_id}.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return self._get(
+            path_template("/api/v2/sandboxes/snapshots-by-name/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotRetrieveByNameResponse,
+        )
+
+
+class AsyncSnapshotsResource(AsyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> AsyncSnapshotsResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#accessing-raw-response-data-eg-headers
+        """
+        return AsyncSnapshotsResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncSnapshotsResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/langchain-ai/langsmith-python#with_streaming_response
+        """
+        return AsyncSnapshotsResourceWithStreamingResponse(self)
+
+    async def create(
+        self,
+        *,
+        docker_image: str,
+        fs_capacity_bytes: int,
+        name: str,
+        description: str | Omit = omit,
+        labels: Dict[str, str] | Omit = omit,
+        registry_id: str | Omit = omit,
+        run_config: snapshot_create_params.RunConfig | Omit = omit,
+        tag: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """Create a snapshot from a Docker image (async build).
+
+        Names use lowercase
+        registry-style components separated by slashes, up to 255 characters. The
+        system/ namespace is read-only.
+
+        Args:
+          description: Description says what this snapshot's image can do, so a caller can hand it to
+              an agent as a capability summary. At most 1024 characters.
+
+          labels: Labels seed the snapshot's labels, overriding any label of the same key derived
+              from the Docker image.
+
+          run_config: RunConfig overrides the runtime configuration taken from the Docker image. Every
+              sandbox created from the snapshot runs as the image's USER, in its WORKDIR, with
+              its ENV beneath the sandbox's own env_vars; user and work_dir given here replace
+              the image's, and env_vars merge over it.
+
+          tag: mutable Docker-style tag; defaults to "latest"
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/api/v2/sandboxes/snapshots",
+            body=await async_maybe_transform(
+                {
+                    "docker_image": docker_image,
+                    "fs_capacity_bytes": fs_capacity_bytes,
+                    "name": name,
+                    "description": description,
+                    "labels": labels,
+                    "registry_id": registry_id,
+                    "run_config": run_config,
+                    "tag": tag,
+                },
+                snapshot_create_params.SnapshotCreateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    async def retrieve(
+        self,
+        snapshot_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotResponse:
+        """
+        Get a sandbox snapshot by ID or a registry-style reference, including
+        system/default:latest. URL-encode references containing slashes. A bare name
+        means name:latest, falling back to the newest ready untagged snapshot of that
+        name. To list the tags under a name, use
+        /api/v2/sandboxes/snapshots-by-name/{name}.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not snapshot_id:
+            raise ValueError(f"Expected a non-empty value for `snapshot_id` but received {snapshot_id!r}")
+        return await self._get(
+            path_template("/api/v2/sandboxes/snapshots/{snapshot_id}", snapshot_id=snapshot_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotResponse,
+        )
+
+    def list(
+        self,
+        *,
+        created_by: str | Omit = omit,
+        cursor: str | Omit = omit,
+        label: SequenceNotStr[str] | Omit = omit,
+        limit: int | Omit = omit,
+        name_contains: str | Omit = omit,
+        offset: int | Omit = omit,
+        page_size: int | Omit = omit,
+        sort_by: str | Omit = omit,
+        sort_direction: str | Omit = omit,
+        sort_order: str | Omit = omit,
+        status: str | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> AsyncPaginator[SnapshotResponse, AsyncItemsCursorGetPagination[SnapshotResponse]]:
+        """
+        List workspace and published system snapshots, with optional filtering, sorting,
+        and pagination. Page with page_size and cursor: replay the response's
+        next_cursor until it comes back null, which is the only signal that no pages
+        remain. Cursors are opaque and only valid on this endpoint; do not parse or
+        construct one.
+
+        Args:
+          created_by: Filter by creator identity. Only 'me' is supported.
+
+          cursor: Opaque pagination cursor from a prior response's next_cursor
+
+          label: Filter by label. Repeatable; all must match. Use 'key' to match on key presence
+              or 'key=value' for equality.
+
+          limit: Deprecated: use page_size. Maximum number of results
+
+          name_contains: Filter by name substring
+
+          offset: Deprecated: use cursor. Pagination offset
+
+          page_size: Number of results per page
+
+          sort_by: Sort column (name, status, created_at)
+
+          sort_direction: Deprecated: use sort_order. Sort direction (asc, desc)
+
+          sort_order: Sort direction (asc, desc)
+
+          status: Filter by status (building, ready, failed, deleting)
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._get_api_list(
+            "/api/v2/sandboxes/snapshots",
+            page=AsyncItemsCursorGetPagination[SnapshotResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "created_by": created_by,
+                        "cursor": cursor,
+                        "label": label,
+                        "limit": limit,
+                        "name_contains": name_contains,
+                        "offset": offset,
+                        "page_size": page_size,
+                        "sort_by": sort_by,
+                        "sort_direction": sort_direction,
+                        "sort_order": sort_order,
+                        "status": status,
+                    },
+                    snapshot_list_params.SnapshotListParams,
+                ),
+            ),
+            model=SnapshotResponse,
+        )
+
+    async def delete(
+        self,
+        snapshot_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> None:
+        """Delete a snapshot by ID or by a Docker-style name[:tag] reference.
+
+        The
+        underlying storage is reclaimed asynchronously.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not snapshot_id:
+            raise ValueError(f"Expected a non-empty value for `snapshot_id` but received {snapshot_id!r}")
+        extra_headers = {"Accept": "*/*", **(extra_headers or {})}
+        return await self._delete(
+            path_template("/api/v2/sandboxes/snapshots/{snapshot_id}", snapshot_id=snapshot_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NoneType,
+        )
+
+    async def retrieve_by_name(
+        self,
+        name: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> SnapshotRetrieveByNameResponse:
+        """
+        Get a snapshot name and every tag under it, with the snapshot each tag resolves
+        to. To fetch one snapshot, use /api/v2/sandboxes/snapshots/{snapshot_id}.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not name:
+            raise ValueError(f"Expected a non-empty value for `name` but received {name!r}")
+        return await self._get(
+            path_template("/api/v2/sandboxes/snapshots-by-name/{name}", name=name),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SnapshotRetrieveByNameResponse,
+        )
+
+
+class SnapshotsResourceWithRawResponse:
+    def __init__(self, snapshots: SnapshotsResource) -> None:
+        self._snapshots = snapshots
+
+        self.create = to_raw_response_wrapper(
+            snapshots.create,
+        )
+        self.retrieve = to_raw_response_wrapper(
+            snapshots.retrieve,
+        )
+        self.list = to_raw_response_wrapper(
+            snapshots.list,
+        )
+        self.delete = to_raw_response_wrapper(
+            snapshots.delete,
+        )
+        self.retrieve_by_name = to_raw_response_wrapper(
+            snapshots.retrieve_by_name,
+        )
+
+
+class AsyncSnapshotsResourceWithRawResponse:
+    def __init__(self, snapshots: AsyncSnapshotsResource) -> None:
+        self._snapshots = snapshots
+
+        self.create = async_to_raw_response_wrapper(
+            snapshots.create,
+        )
+        self.retrieve = async_to_raw_response_wrapper(
+            snapshots.retrieve,
+        )
+        self.list = async_to_raw_response_wrapper(
+            snapshots.list,
+        )
+        self.delete = async_to_raw_response_wrapper(
+            snapshots.delete,
+        )
+        self.retrieve_by_name = async_to_raw_response_wrapper(
+            snapshots.retrieve_by_name,
+        )
+
+
+class SnapshotsResourceWithStreamingResponse:
+    def __init__(self, snapshots: SnapshotsResource) -> None:
+        self._snapshots = snapshots
+
+        self.create = to_streamed_response_wrapper(
+            snapshots.create,
+        )
+        self.retrieve = to_streamed_response_wrapper(
+            snapshots.retrieve,
+        )
+        self.list = to_streamed_response_wrapper(
+            snapshots.list,
+        )
+        self.delete = to_streamed_response_wrapper(
+            snapshots.delete,
+        )
+        self.retrieve_by_name = to_streamed_response_wrapper(
+            snapshots.retrieve_by_name,
+        )
+
+
+class AsyncSnapshotsResourceWithStreamingResponse:
+    def __init__(self, snapshots: AsyncSnapshotsResource) -> None:
+        self._snapshots = snapshots
+
+        self.create = async_to_streamed_response_wrapper(
+            snapshots.create,
+        )
+        self.retrieve = async_to_streamed_response_wrapper(
+            snapshots.retrieve,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            snapshots.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
+            snapshots.delete,
+        )
+        self.retrieve_by_name = async_to_streamed_response_wrapper(
+            snapshots.retrieve_by_name,
+        )

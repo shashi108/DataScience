@@ -1,0 +1,89 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+from typing import Union
+from datetime import datetime
+from typing_extensions import Annotated, TypedDict
+
+from .._utils import PropertyInfo
+
+__all__ = ["ThreadQueryParams"]
+
+
+class ThreadQueryParams(TypedDict, total=False):
+    ai_search: str
+    """
+    `ai_search` is a plain-language criterion evaluated against the messages from
+    the agent trajectory scoped to the thread. AND-ed with the ordinary filters.
+    Requires semantic filtering enabled for the deployment. Must contain nonempty
+    text of at most 2000 UTF-8 bytes.
+    """
+
+    cursor: str
+    """`cursor` is the opaque string from a previous response's `next_cursor`.
+
+    Omit on the first request; pass the returned cursor to fetch the next page.
+    """
+
+    filter: str
+    """
+    `filter` narrows which threads are returned, using a LangSmith filter expression
+    evaluated against each thread's root run. For example: has(tags, "production")
+    or eq(status, "error"). See
+    https://docs.langchain.com/langsmith/trace-query-syntax#filter-query-language
+    for syntax.
+    """
+
+    max_start_time: Annotated[Union[str, datetime], PropertyInfo(format="iso8601")]
+    """
+    `max_start_time` is the exclusive upper bound on thread activity (RFC3339
+    date-time). Defaults to now (UTC) when omitted.
+    """
+
+    min_start_time: Annotated[Union[str, datetime], PropertyInfo(format="iso8601")]
+    """
+    `min_start_time` is the inclusive lower bound on thread activity (RFC3339
+    date-time). Defaults to 1 day before now (UTC) when omitted.
+    """
+
+    page_size: int
+    """`page_size` is the maximum number of threads to return in this response.
+
+    Defaults to 20 when omitted; must be between 1 and 100 inclusive when set. The
+    response may contain fewer threads than `page_size` even when `next_cursor` is
+    non-null.
+    """
+
+    project_id: str
+    """`project_id` is the tracing project UUID."""
+
+    thread_filter: str
+    """
+    `thread_filter` narrows results using a LangSmith filter expression evaluated
+    against each complete thread summary. Self-hosted deployments require LangSmith
+    v0.17 or later; unsupported deployments return 501. See
+    https://docs.langchain.com/langsmith/trace-query-syntax#filter-query-language
+    for syntax.
+    """
+
+    trace_filter: str
+    """
+    `trace_filter` narrows results to threads containing at least one trace whose
+    root run matches this LangSmith filter expression. Trace-level aggregate fields
+    are evaluated using the complete trace summary. Self-hosted deployments require
+    LangSmith v0.17 or later; unsupported deployments return 501. See
+    https://docs.langchain.com/langsmith/trace-query-syntax#filter-query-language
+    for syntax.
+    """
+
+    tree_filter: str
+    """
+    `tree_filter` narrows results to threads containing at least one trace with a
+    matching run anywhere in its run tree. Self-hosted deployments require LangSmith
+    v0.17 or later; unsupported deployments return 501. See
+    https://docs.langchain.com/langsmith/trace-query-syntax#filter-query-language
+    for syntax.
+    """
+
+    accept: Annotated[str, PropertyInfo(alias="Accept")]
