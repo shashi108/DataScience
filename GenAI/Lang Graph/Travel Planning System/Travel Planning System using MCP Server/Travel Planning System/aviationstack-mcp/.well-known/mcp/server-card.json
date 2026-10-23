@@ -1,0 +1,692 @@
+{
+  "serverInfo": {
+    "name": "aviationstack-mcp",
+    "title": "Aviationstack MCP",
+    "description": "MCP server for Aviationstack flight, schedule, and aviation reference data.",
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "aviationstack_api_key": {
+          "type": "string",
+          "description": "Aviationstack API key used to authenticate API requests.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "aviationstack_api_key"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "tools": [
+    {
+      "name": "get_flight_status",
+      "description": "Look up one specific flight by its IATA flight number, for the current day or a given date. Returns flight status plus scheduled, estimated and actual times, terminal, gate, baggage belt and delay minutes for both ends, with the operating flight ordered ahead of its codeshares. Use this when the question names a flight number; use flights_with_airline to browse an airline's flights, or historical_flights_by_date for past dates.",
+      "inputSchema": {
+        "properties": {
+          "flight_iata": {
+            "description": "Flight IATA number (for example: AA100).",
+            "minLength": 2,
+            "title": "Flight Iata",
+            "type": "string"
+          },
+          "flight_date": {
+            "default": "",
+            "description": "Optional date in YYYY-MM-DD format. Defaults to the current day.",
+            "examples": [
+              "2026-03-01"
+            ],
+            "title": "Flight Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "flight_iata"
+        ],
+        "title": "get_flight_status_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "get_flight_status_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "flights_with_airline",
+      "description": "Return live flights for one airline, optionally narrowed to a single flight status. Returns flight number, airline, departure and arrival airports with timezones, scheduled departure time, status, delay, terminal and gate. Use this to survey an airline's current activity; use get_flight_status when you already know the flight number.",
+      "inputSchema": {
+        "properties": {
+          "airline_name": {
+            "description": "Airline name to filter flights (for example: Delta Air Lines).",
+            "title": "Airline Name",
+            "type": "string"
+          },
+          "number_of_flights": {
+            "description": "Maximum number of flights to return, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Flights",
+            "type": "integer"
+          },
+          "flight_status": {
+            "default": "",
+            "description": "Optional flight status filter. One of: scheduled, active, landed, cancelled, incident, diverted.",
+            "title": "Flight Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "airline_name",
+          "number_of_flights"
+        ],
+        "title": "flights_with_airline_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "flights_with_airline_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "historical_flights_by_date",
+      "description": "Return flights that already operated on a past date, with optional airline and route filters. Returns flight date, status, flight number, airline, and both airports with their scheduled times. Requires the Basic plan or higher. Use this for past dates only: use flight_arrival_departure_schedule for today and future_flights_arrival_departure_schedule for later dates.",
+      "inputSchema": {
+        "properties": {
+          "flight_date": {
+            "description": "Past date to query, in YYYY-MM-DD format.",
+            "examples": [
+              "2026-03-01"
+            ],
+            "title": "Flight Date",
+            "type": "string"
+          },
+          "number_of_flights": {
+            "description": "Maximum number of flights to return, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Flights",
+            "type": "integer"
+          },
+          "airline_iata": {
+            "default": "",
+            "description": "Optional airline IATA code filter (for example: DL).",
+            "title": "Airline Iata",
+            "type": "string"
+          },
+          "dep_iata": {
+            "default": "",
+            "description": "Optional departure airport IATA code filter (for example: JFK).",
+            "title": "Dep Iata",
+            "type": "string"
+          },
+          "arr_iata": {
+            "default": "",
+            "description": "Optional arrival airport IATA code filter (for example: LAX).",
+            "title": "Arr Iata",
+            "type": "string"
+          }
+        },
+        "required": [
+          "flight_date",
+          "number_of_flights"
+        ],
+        "title": "historical_flights_by_date_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "historical_flights_by_date_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "flight_arrival_departure_schedule",
+      "description": "Return today's arrival or departure board for an airport, optionally filtered by airline name. Returns airline, flight number, scheduled, estimated and actual times, terminals, gates and departure delay per flight. Covers the current day only: for any later date use future_flights_arrival_departure_schedule instead.",
+      "inputSchema": {
+        "properties": {
+          "airport_iata_code": {
+            "description": "Airport IATA code (for example: SFO).",
+            "minLength": 1,
+            "title": "Airport Iata Code",
+            "type": "string"
+          },
+          "schedule_type": {
+            "description": "Whether to return the arrival board or the departure board. One of: arrival, departure.",
+            "title": "Schedule Type",
+            "type": "string"
+          },
+          "airline_name": {
+            "default": "",
+            "description": "Optional airline name filter.",
+            "title": "Airline Name",
+            "type": "string"
+          },
+          "number_of_flights": {
+            "default": 5,
+            "description": "Maximum number of flights to return, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Flights",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "airport_iata_code",
+          "schedule_type"
+        ],
+        "title": "flight_arrival_departure_schedule_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "flight_arrival_departure_schedule_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "future_flights_arrival_departure_schedule",
+      "description": "Return the scheduled arrival or departure board for an airport on a specific future date. Covers any date from tomorrow through about 12 months ahead, including the next 7 days. Returns airline, flight number, scheduled times, arrival airport, terminal, gate and aircraft model. Use flight_arrival_departure_schedule for today's board instead.",
+      "inputSchema": {
+        "properties": {
+          "airport_iata_code": {
+            "description": "Airport IATA code (for example: SFO).",
+            "minLength": 1,
+            "title": "Airport Iata Code",
+            "type": "string"
+          },
+          "schedule_type": {
+            "description": "Whether to return the arrival board or the departure board. One of: arrival, departure.",
+            "title": "Schedule Type",
+            "type": "string"
+          },
+          "airline_iata": {
+            "default": "",
+            "description": "Optional airline IATA code filter (for example: UA).",
+            "title": "Airline Iata",
+            "type": "string"
+          },
+          "date": {
+            "default": "",
+            "description": "Date to query, in YYYY-MM-DD format. Any date from tomorrow through about 12 months ahead, including the next 7 days.",
+            "examples": [
+              "2027-03-01"
+            ],
+            "title": "Date",
+            "type": "string"
+          },
+          "number_of_flights": {
+            "default": 5,
+            "description": "Maximum number of flights to return, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Flights",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "airport_iata_code",
+          "schedule_type"
+        ],
+        "title": "future_flights_arrival_departure_schedule_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "future_flights_arrival_departure_schedule_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "random_aircraft_type",
+      "description": "Return a random sample of aircraft types from the Aviationstack reference catalog. Each record has aircraft_name and iata_code. Records are drawn from a random offset, so repeated calls return different rows. This samples the catalog and cannot look up a specific model: there is no search parameter.",
+      "inputSchema": {
+        "properties": {
+          "number_of_aircraft": {
+            "description": "Number of random aircraft types to sample, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Aircraft",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number_of_aircraft"
+        ],
+        "title": "random_aircraft_type_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "random_aircraft_type_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "random_airplanes_detailed_info",
+      "description": "Return a random sample of individual airplanes from the reference catalog. Each record has model name and code, series, production line, registration number, owner, age, engine type and count, delivery date and first flight date. Records are drawn from a random offset, so repeated calls return different aircraft. Sampling only: there is no lookup by registration.",
+      "inputSchema": {
+        "properties": {
+          "number_of_airplanes": {
+            "description": "Number of random airplanes to sample, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Airplanes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number_of_airplanes"
+        ],
+        "title": "random_airplanes_detailed_info_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "random_airplanes_detailed_info_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "random_countries_detailed_info",
+      "description": "Return a random sample of countries from the reference catalog. Each record has country name, capital, continent, ISO2, ISO3 and numeric ISO codes, FIPS code, currency name and code, phone prefix and population. Records are drawn from a random offset, so repeated calls return different countries. Sampling only: there is no lookup by country name or code.",
+      "inputSchema": {
+        "properties": {
+          "number_of_countries": {
+            "description": "Number of random countries to sample, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Countries",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number_of_countries"
+        ],
+        "title": "random_countries_detailed_info_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "random_countries_detailed_info_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "random_cities_detailed_info",
+      "description": "Return a random sample of cities from the reference catalog. Each record has city name, IATA code, country ISO2, latitude, longitude, timezone, GMT offset and geoname id. Records are drawn from a random offset, so repeated calls return different cities. Sampling only: there is no lookup by city name.",
+      "inputSchema": {
+        "properties": {
+          "number_of_cities": {
+            "description": "Number of random cities to sample, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Number Of Cities",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number_of_cities"
+        ],
+        "title": "random_cities_detailed_info_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "random_cities_detailed_info_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_airports",
+      "description": "List airports from the reference catalog, one page at a time, with optional text search. Each record has airport name, IATA and ICAO codes, city IATA code, country name and ISO2, timezone and GMT offset, alongside a pagination block carrying limit, offset and total. Use search to resolve an airport name to the IATA code the flight tools expect.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "description": "Maximum number of airports to return per page, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Zero-based offset for pagination. Combine with limit and the total in the response to page through results.",
+            "minimum": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "search": {
+            "default": "",
+            "description": "Optional text matched against airport name and codes. Autocomplete search requires the Basic plan or higher, as does this endpoint.",
+            "title": "Search",
+            "type": "string"
+          }
+        },
+        "title": "list_airports_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "list_airports_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_airlines",
+      "description": "List airlines from the reference catalog, one page at a time, with optional text search. Each record has airline name, IATA and ICAO codes, callsign, operational status, country name and ISO2, alongside a pagination block carrying limit, offset and total. Use search to resolve an airline name to the IATA code the flight tools expect.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "description": "Maximum number of airlines to return per page, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Zero-based offset for pagination. Combine with limit and the total in the response to page through results.",
+            "minimum": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "search": {
+            "default": "",
+            "description": "Optional text matched against airline name and codes. Autocomplete search requires the Basic plan or higher, as does this endpoint.",
+            "title": "Search",
+            "type": "string"
+          }
+        },
+        "title": "list_airlines_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "list_airlines_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_routes",
+      "description": "List scheduled routes, one page at a time, filtered by any combination of airline, departure airport and arrival airport. Each record has airline IATA and ICAO codes, flight number, and departure and arrival airport codes, alongside a pagination block carrying limit, offset and total. This says which routes exist, not whether a flight is operating: use get_flight_status for that. Requires the Basic plan or higher.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "description": "Maximum number of routes to return per page, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Zero-based offset for pagination. Combine with limit and the total in the response to page through results.",
+            "minimum": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "airline_iata": {
+            "default": "",
+            "description": "Optional airline IATA code filter.",
+            "title": "Airline Iata",
+            "type": "string"
+          },
+          "dep_iata": {
+            "default": "",
+            "description": "Optional departure airport IATA code filter.",
+            "title": "Dep Iata",
+            "type": "string"
+          },
+          "arr_iata": {
+            "default": "",
+            "description": "Optional arrival airport IATA code filter.",
+            "title": "Arr Iata",
+            "type": "string"
+          }
+        },
+        "title": "list_routes_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "list_routes_toolOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_taxes",
+      "description": "List aviation taxes from the reference catalog, one page at a time, with optional text search. Each record has tax id, tax name and the associated IATA code, alongside a pagination block carrying limit, offset and total. This is static reference data, not fares or amounts charged on a booking. Requires a paid plan.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "description": "Maximum number of tax records to return per page, from 1 to 100.",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Zero-based offset for pagination. Combine with limit and the total in the response to page through results.",
+            "minimum": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "search": {
+            "default": "",
+            "description": "Optional text matched against tax name and IATA code.",
+            "title": "Search",
+            "type": "string"
+          }
+        },
+        "title": "list_taxes_toolArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "list_taxes_toolOutput",
+        "type": "object"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "server_metadata",
+      "uri": "aviationstack://meta/server",
+      "description": "Static metadata about this Aviationstack MCP server.",
+      "mimeType": "application/json"
+    },
+    {
+      "name": "aviationstack_endpoints",
+      "uri": "aviationstack://meta/endpoints",
+      "description": "Available Aviationstack API endpoints used by tools.",
+      "mimeType": "application/json"
+    },
+    {
+      "name": "tool_input_examples",
+      "uriTemplate": "aviationstack://examples/tool-input/{tool_name}",
+      "description": "Example input payloads for each tool name."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "plan_flight_status_lookup",
+      "description": "Generate a plan for checking the status of one specific flight.",
+      "arguments": [
+        {
+          "name": "flight_iata",
+          "description": "Flight IATA number (for example: AA100).",
+          "required": true
+        },
+        {
+          "name": "flight_date",
+          "description": "Optional date in YYYY-MM-DD format.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "plan_airline_flight_lookup",
+      "description": "Generate a concise plan for querying live flights for an airline.",
+      "arguments": [
+        {
+          "name": "airline_name",
+          "description": "Airline name to query live flights for.",
+          "required": true
+        },
+        {
+          "name": "number_of_flights",
+          "description": "Number of flights to request.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "plan_future_schedule_lookup",
+      "description": "Generate a plan for querying an airport's scheduled arrival or departure board on a future date, from tomorrow through about 12 months ahead.",
+      "arguments": [
+        {
+          "name": "airport_iata_code",
+          "description": "Airport IATA code (for example: SFO).",
+          "required": true
+        },
+        {
+          "name": "date",
+          "description": "Date to query, in YYYY-MM-DD format. Any date from tomorrow through about 12 months ahead.",
+          "required": true
+        },
+        {
+          "name": "schedule_type",
+          "description": "Whether to return the arrival board or the departure board. One of: arrival, departure.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "plan_reference_data_lookup",
+      "description": "Generate a plan for exploring airport/airline/route/tax reference data.",
+      "arguments": [
+        {
+          "name": "data_type",
+          "description": "Reference data category: airports, airlines, routes, or taxes.",
+          "required": false
+        },
+        {
+          "name": "search",
+          "description": "Optional search term to narrow results.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}
