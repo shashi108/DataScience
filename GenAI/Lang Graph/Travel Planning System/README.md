@@ -49,9 +49,9 @@ All three folders solve the same core problem: generating a useful travel plan f
 
 ## Suggested reading order
 
-1. Start with `Travel Planning Multi-Agent AI System Production-Ready`
+1. Start with `Travel Planning System with Tools`  
 2. Study `Travel Planning System using MCP Server`
-3. Review `Travel Planning System with Tools`
+3. Review `Travel Planning Multi-Agent AI System Production-Ready`
 
 ## Typical workflow across the projects
 
